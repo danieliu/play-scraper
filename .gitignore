@@ -1,0 +1,4 @@
+*.json
+*.pyc
+*.log
+optimizing.py
