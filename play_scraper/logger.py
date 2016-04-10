@@ -21,7 +21,7 @@ DEFAULT_LOGGER = {
         'file': {
             'class': 'logging.FileHandler',
             'level': 'INFO',
-            'filename': 'play-scraper.log',
+            'filename': 'scraper.log',
             'formatter': 'default',
         },
     },

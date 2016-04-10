@@ -2,25 +2,27 @@
 
 Scrapes and parses application data from the Google Play Store.
 
-## Installation
+### Installation
 
 ```
 pip install -r requirements.txt
 ```
 
-## Usage
+### Usage
 
-* [parse_app](#parse_app): Gets the full details of an app by id
-* [parse_category](#parse_category): 
+* [app](#app): Fetches the details of an application.
+* [collection](#collection): Fetches a list of application details.
 
-#### parse_app
+#### app
 
-Parses available details of an application by id.
+Fetch an application's details by its id.
 
-Example:
+For example:
 ```python
+from play_scraper import PlayScraper
+
 scraper = PlayScraper()
-scraper.parse_app('com.miniclip.basketballstars')
+print(scraper.app('com.miniclip.basketballstars'))
 ```
 
 Result:
@@ -57,6 +59,23 @@ Result:
     'url': 'https://play.google.com/store/apps/details?id=com.miniclip.basketballstars',
     'video': None
 }
+```
+
+#### collection
+
+Fetch a full list of applications and their details.
+
+* `collection` (optional, default `TOP_FREE`)
+* `category` (optional)
+
+For example:
+
+```python
+from play_scraper import PlayScraper
+
+scraper = PlayScraper()
+scraper.collection(
+    category='')
 ```
 
 ### Tests

@@ -1,79 +1,61 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import settings
 from urlparse import urljoin
 
 import grequests
 from bs4 import BeautifulSoup
 
 from logger import configure_logging
+from settings import (BASE_URL, HEADERS, VERIFY_SSL, CONCURRENT_REQUESTS,
+    NUM_COLLECTIONS, NUM_RESULTS, CATEGORIES, COLLECTIONS)
 
 
 class PlayScraper(object):
-    def __init__(self):
-        self._base_url = settings.BASE_URL
-        self._verify = settings.VERIFY_SSL
-        self._headers = settings.HEADERS
-        self._num_results = settings.NUM_RESULTS
-        self._num_collections = settings.NUM_COLLECTIONS
-        self._base_collections = settings.BASE_COLLECTIONS.values()
-        self._poolsize = settings.CONCURRENT_REQUESTS
+    def __init__(self, **kwargs):
+        self.categories = CATEGORIES
+        self.collections = COLLECTIONS
+        self._base_url = BASE_URL
+        self._verify = VERIFY_SSL
+        self._headers = HEADERS
+        self._num_results = NUM_RESULTS
+        self._num_collections = NUM_COLLECTIONS
         self._logger = configure_logging()
 
-    def _grequest_exception_handler(self, request, exception):
+    def _handle_grequest_exception(self, request, exception):
         self._logger.error("{exception} with {url}".format(
             exception=exception, url=request.url))
         return None
 
-    def _build_app_url(self, app_id=None):
+    def _app_url(self, app_id):
         """
-        Create the app's absolute url by id
+        Returns a full url string to the corresponding app id
         """
-        if not app_id:
-            raise ValueError("No App ID provided.")
         return "{base}/details?id={app_id}".format(
             base=self._base_url,
             app_id=app_id)
 
-    def _build_list_url(self, category="", collection=""):
+    def _list_url(self, category='', collection=''):
         """
         Creates the absolute url based on the category and collection id's.
         """
         if category:
-            category = "/category/{cat_id}".format(cat_id=category)
+            category = "/category/{cat_id}".format(cat_id=category['category_id'])
         if collection:
-            collection = "/collection/{col_name}".format(col_name=collection)
+            collection = "/collection/{col_id}".format(col_id=collection['collection_id'])
         return "{base}{category}{collection}".format(
             base=self._base_url,
             category=category,
             collection=collection)
 
-    def _get_category_list(self):
+    def _get_soup(self, url, method='POST', data={}):
         """
-        GET the main store and create a list of all available app
-        categories and their respective relative URLs.
-        """
-        data = {}
-        home_page = self._build_list_url()
-        soup = self._get_soup(home_page)
-        categories = soup.select('a.child-submenu-link')
-        for cat in categories:
-            url = cat.attrs['href']
-            data[cat.string] = {
-                'name': cat.string,
-                'url': url,
-                'category_id': url.split('/')[-1]}
-        return data
-
-    def _get_soup(self, url, data={}, method='POST'):
-        """
-        Sends a request to URL and turns the response into a soup object.
+        Sends a request to the url and turns the response into a soup object.
         """
         if not data and method == 'POST':
             data = self._generate_post_data()
         try:
-            self._logger.info("Sending {method} to '{url}'.".format(
+            self._logger.info("Sending {method} to '{url}'".format(
                 method=method, url=url))
             response = requests.request(
                 method=method,
@@ -83,6 +65,7 @@ class PlayScraper(object):
                 verify=self._verify)
             if response.status_code == requests.codes.ok:
                 soup = BeautifulSoup(response.content, 'lxml')
+                self._logger.info("Soup created.")
                 return soup
             else:
                 response.raise_for_status()
@@ -92,8 +75,8 @@ class PlayScraper(object):
 
     def _generate_post_data(self, results=None, page=None, children=0):
         """
-        Creates the post data for a POST request, mainly for pagination
-        and limiting results.
+        Creates the post data for a POST request. Mainly for pagination and
+        limiting results.
         """
         data = {
             'ipf': 1,
@@ -107,6 +90,25 @@ class PlayScraper(object):
             data['num'] = results
         return data
 
+    def _get_categories(self):
+        """
+        Sends a GET request to the front page (base url of the app store),
+        parses and returns a list of all available categories.
+
+        May contain some promotions, e.g. "Popular Characters"
+        """
+        categories = {}
+        home_page = self._base_url
+        soup = self._get_soup(home_page)
+        category_links = soup.select('a.child-submenu-link')
+        for cat in category_links:
+            url = cat.attrs['href']
+            categories[cat.string] = {
+                'name': cat.string,
+                'url': url,
+                'category_id': url.split('/')[-1]}
+        return categories
+
     def _get_collections(self, soup):
         """
         Parse collection titles, ids, and URLs from the top-level category and
@@ -118,7 +120,7 @@ class PlayScraper(object):
             name = a.parent.previous_sibling.previous_sibling.string
             url = a.attrs['href']
             collection = url.split('/')[-1]
-            if collection not in self._base_collections:
+            if collection not in self.collections:
                 collections.append({
                     'name': name,
                     'url': url,
@@ -212,7 +214,7 @@ class PlayScraper(object):
                 in_app_purchases = meta_info[iap_price_index].string
             except ValueError:
                 self._logger.warning(
-                    "Could not find In-app Products price range for '{app}'".format(
+                    "In-app purchases range not found for '{app}'".format(
                         app=app_id))
                 pass
 
@@ -260,49 +262,59 @@ class PlayScraper(object):
             'developer_address': developer_address
         }
 
-    def parse_app(self, app_id):
+    def app(self, app_id=None):
         """
-        Gets an app's details.
+        Fetches an application's details.
         """
-        url = self._build_app_url(app_id)
-        soup = self._get_soup(url, method="GET")
+        if not app_id:
+            raise ValueError("No App ID provided.")
+
+        url = self._app_url(app_id)
+        soup = self._get_soup(url, method='GET')
         return self._get_app_details(soup)
 
-    def parse_collection(self, **kwargs):
+    def collection(self, **kwargs):
         """
-        Crawls through a collection, paginating as necessary and returns parsed
-        apps in a list.
-        """
-        col = kwargs.pop('collection', None)
-        if not col:
-            raise ValueError("No collection specified.")
+        Fetches applications from a collection and returns their details in a list
 
-        cat = kwargs.pop('category', '')
-        url = self._build_list_url(cat['category_id'], col)
+        :param collection: (optional, defaults to TOP_FREE) the collection name,
+            e.g. TOP_NEW_FREE
+        :param category: (optional) the category name, e.g. ANDROID_WEAR.
+        """
+        collection_id = kwargs.pop('collection', 'TOP_FREE')
+        category_id = kwargs.pop('category', '')
+
+        collection = self.collections[collection_id]
+        if category_id:
+            category = self.categories[category_id]
+
+        url = self._list_url(category_id, collection_id)
         page = 0
         apps = []
 
         while True:
             self._logger.info("Retrieving page {page} of {col}".format(
-                page=page, col=col))
+                page=page, col=collection['name']))
 
             post_data = self._generate_post_data(self._num_results, page)
-            soup = self._get_soup(url, post_data)
+            soup = self._get_soup(url, data=post_data)
             current_apps = [x.attrs['data-docid'] for x in soup.select('.card-content')]
 
             reqs = (grequests.request(
                 method='GET',
-                url=self._build_app_url(app_id),
+                url=self._app_url(app_id),
                 headers=self._headers,
                 verify=self._verify) for app_id in current_apps)
             responses = grequests.map(
                 reqs,
-                size=self._poolsize,
-                exception_handler=self._grequest_exception_handler)
+                size=CONCURRENT_REQUESTS,
+                exception_handler=self._handle_grequest_exception)
+
+            self._logger.info("Parsing {num} apps...".format(num=len(responses)))
 
             for i, response in enumerate(responses):
                 if not response:
-                    self._logger.info("Could not get app details for '{app_id}'".format(
+                    self._logger.info("No response for '{app_id}'".format(
                         app_id=current_apps[i]))
                 else:
                     if not response.status_code == requests.codes.ok:
@@ -313,16 +325,17 @@ class PlayScraper(object):
                         soup = BeautifulSoup(response.content, 'lxml')
                         apps.append(self._get_app_details(soup))
 
-            if len(current_apps) < self._num_results or page * self._num_results > 500:
-                break
             page += 1
 
+            if len(current_apps) < self._num_results or page * self._num_results > 500:
+                break
+
         self._logger.info("Parsed {num} apps from {cat}'s {col}".format(
-            num=len(apps), cat=cat['name'], col=col))
+            num=len(apps), cat=category['name'], col=collection['name']))
 
         return apps
 
-    def parse_category(self, **kwargs):
+    def category(self, **kwargs):
         """
         Main scraping function.
 
@@ -331,17 +344,19 @@ class PlayScraper(object):
         Crawls each collection to scrape app urls and IDs.
         Parse each app's details.
         """
-        category = kwargs.pop('category', settings.CATEGORIES[0])
-        category_url = self._build_list_url(category['category_id'])
+        category = kwargs.pop('category', None)
+        if not category:
+            raise ValueError("No category specified.")
+        category_url = self._list_url(category)
 
-        results = settings.NUM_COLLECTIONS
+        results = self._NUM_COLLECTIONS
         page = 0
         children = 1
         collections = []
 
         while True:
             post_data = self._generate_post_data(results, page, children)
-            soup = self._get_soup(category_url, post_data)
+            soup = self._get_soup(category_url, data=post_data)
             current = self._get_collections(soup)
             collections += current
 
