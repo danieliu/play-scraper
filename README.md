@@ -65,8 +65,8 @@ Result:
 
 Fetch a full list of applications and their details.
 
-* `collection` (optional, default `TOP_FREE`)
-* `category` (optional)
+* `collection` (optional, default `TOP_FREE`) See [settings](https://github.com/danieliu/PlayScraper/blob/master/play_scraper/settings.py#L23) for a list of options.
+* `category` (optional) See [settings](https://github.com/danieliu/PlayScraper/blob/master/play_scraper/settings.py#L79) for a list of options.
 
 For example:
 
@@ -74,9 +74,12 @@ For example:
 from play_scraper import PlayScraper
 
 scraper = PlayScraper()
-scraper.collection(
-    category='')
+print scraper.collection(
+    category='GAME_ACTION',
+    collection='TRENDING')
 ```
+
+
 
 ### Tests
 

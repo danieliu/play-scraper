@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from urlparse import urljoin
+import urlparse
 
 import grequests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 
 from logger import configure_logging
 from settings import (BASE_URL, HEADERS, VERIFY_SSL, CONCURRENT_REQUESTS,
@@ -48,10 +48,11 @@ class PlayScraper(object):
             category=category,
             collection=collection)
 
-    def _get_soup(self, url, method='POST', data={}):
+    def _get_soup(self, url, method='POST', data={}, strainer=None):
         """
         Sends a request to the url and turns the response into a soup object.
         """
+        params = {'parse_only': strainer} if strainer else {}
         if not data and method == 'POST':
             data = self._generate_post_data()
         try:
@@ -64,7 +65,7 @@ class PlayScraper(object):
                 headers=self._headers,
                 verify=self._verify)
             if response.status_code == requests.codes.ok:
-                soup = BeautifulSoup(response.content, 'lxml')
+                soup = BeautifulSoup(response.content, 'lxml', **params)
                 self._logger.info("Soup created.")
                 return soup
             else:
@@ -99,14 +100,18 @@ class PlayScraper(object):
         """
         categories = {}
         home_page = self._base_url
-        soup = self._get_soup(home_page)
+        strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
+
+        soup = self._get_soup(home_page, strainer=strainer)
         category_links = soup.select('a.child-submenu-link')
+
         for cat in category_links:
             url = cat.attrs['href']
-            categories[cat.string] = {
+            category_id = url.split('/')[-1]
+            categories[category_id] = {
                 'name': cat.string,
                 'url': url,
-                'category_id': url.split('/')[-1]}
+                'category_id': category_id}
         return categories
 
     def _get_collections(self, soup):
@@ -118,25 +123,31 @@ class PlayScraper(object):
         links = soup.select('a.see-more')
         for a in links:
             name = a.parent.previous_sibling.previous_sibling.string
+            name_id = name.upper().replace(' ', '_')
             url = a.attrs['href']
-            collection = url.split('/')[-1]
-            if collection not in self.collections:
-                collections.append({
+            collection_id = url.split('/')[-1]
+            if name_id not in self.collections:
+                self.collections[name_id] = {
                     'name': name,
                     'url': url,
-                    'collection': collection
-                })
+                    'collection_id': collection_id
+                }
+                collections.append(name_id)
         return collections
 
     def _get_app_details(self, soup):
         app_id = soup.select_one('span.play-button').attrs['data-docid']
-        url = soup.select_one('link[rel="canonical"]').attrs['href']
+        url = soup.select_one('meta[itemprop="url"]').attrs['content']
         title = soup.select_one('div.id-app-title').string
-        icon = urljoin(self._base_url, soup.select_one('img.cover-image').attrs['src'])
-        screenshots = [
-            urljoin(self._base_url, s.attrs['src']) for s in soup.select('img.full-screenshot')]
-        thumbnails = [
-            urljoin(self._base_url, s.attrs['src']) for s in soup.select('img.screenshot')]
+        icon = urlparse.urljoin(
+            self._base_url,
+            soup.select_one('img.cover-image').attrs['src'])
+        screenshots = [urlparse.urljoin(
+            self._base_url,
+            s.attrs['src']) for s in soup.select('img.full-screenshot')]
+        thumbnails = [urlparse.urljoin(
+            self._base_url,
+            s.attrs['src']) for s in soup.select('img.screenshot')]
 
         try:
             video = soup.select_one('span.preview-overlay-container').attrs.get('data-video-url', None)
@@ -151,7 +162,7 @@ class PlayScraper(object):
             'category_id': c.attrs['href'].split('/')[-1],
             'url': c.attrs['href']} for c in soup.select('.category')]
 
-        description_soup = soup.select_one('.show-more-content.text-body div')
+        description_soup = soup.select_one('div.show-more-content.text-body div')
         description = "\n".join([x.replace(u"’", u"'").encode('utf-8') for x in description_soup.stripped_strings])
         description_html = "".join([str(x.encode('utf-8')).replace("’", "'") for x in description_soup.contents])
 
@@ -165,20 +176,21 @@ class PlayScraper(object):
         histogram = {}
         try:
             reviews = int(soup.select_one('meta[itemprop="ratingCount"]').attrs['content'])
-            ratings = [int(r.string.replace(',', '')) for r in soup.select('span.bar-number')]
+            ratings_section = soup.select_one('div.rating-histogram')
+            ratings = [int(r.string.replace(',', '')) for r in ratings_section.select('span.bar-number')]
             for i in range(5):
                 histogram[5 - i] = ratings[i]
         except AttributeError:
             reviews = None
             pass
 
-        recent_changes = "\n".join([x.string.strip() for x in soup.select('.recent-change')])
+        recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
         price = soup.select_one('meta[itemprop="price"]').attrs['content']
         free = (price == '0')
 
         # Additional information section
-        additional_info = soup.select_one('.metadata .details-section-contents')
+        additional_info = soup.select_one('div.metadata div.details-section-contents')
         updated = additional_info.select_one('div[itemprop="datePublished"]').string
         size = additional_info.select_one('div[itemprop="fileSize"]')
         if size:
@@ -206,7 +218,7 @@ class PlayScraper(object):
             interactive_elements = []
             pass
 
-        offers_iap = bool(soup.select_one('.inapp-msg'))
+        offers_iap = bool(soup.select_one('div.inapp-msg'))
         in_app_purchases = None
         if offers_iap:
             try:
@@ -214,7 +226,7 @@ class PlayScraper(object):
                 in_app_purchases = meta_info[iap_price_index].string
             except ValueError:
                 self._logger.warning(
-                    "In-app purchases range not found for '{app}'".format(
+                    "IAP range not found for '{app}'".format(
                         app=app_id))
                 pass
 
@@ -278,8 +290,8 @@ class PlayScraper(object):
         Fetches applications from a collection and returns their details in a list
 
         :param collection: (optional, defaults to TOP_FREE) the collection name,
-            e.g. TOP_NEW_FREE
-        :param category: (optional) the category name, e.g. ANDROID_WEAR.
+            e.g. 'TOP_NEW_FREE'
+        :param category: (optional) the category name, e.g. 'ANDROID_WEAR'.
         """
         collection_id = kwargs.pop('collection', 'TOP_FREE')
         category_id = kwargs.pop('category', '')
@@ -288,7 +300,10 @@ class PlayScraper(object):
         if category_id:
             category = self.categories[category_id]
 
-        url = self._list_url(category_id, collection_id)
+        url = self._list_url(category, collection)
+        list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
+        app_strainer = SoupStrainer('div', {'class': 'main-content'})
+
         page = 0
         apps = []
 
@@ -297,8 +312,8 @@ class PlayScraper(object):
                 page=page, col=collection['name']))
 
             post_data = self._generate_post_data(self._num_results, page)
-            soup = self._get_soup(url, data=post_data)
-            current_apps = [x.attrs['data-docid'] for x in soup.select('.card-content')]
+            soup = self._get_soup(url, data=post_data, strainer=list_strainer)
+            current_apps = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
 
             reqs = (grequests.request(
                 method='GET',
@@ -322,7 +337,7 @@ class PlayScraper(object):
                             e=response.status_code,
                             url=response.url))
                     else:
-                        soup = BeautifulSoup(response.content, 'lxml')
+                        soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
                         apps.append(self._get_app_details(soup))
 
             page += 1
@@ -340,16 +355,17 @@ class PlayScraper(object):
         Main scraping function.
 
         Sends a POST request to a category's url, paginates and retrieves all
-        collection urls.
-        Crawls each collection to scrape app urls and IDs.
+        collection urls that are not in the BASE collections.
         Parse each app's details.
         """
         category = kwargs.pop('category', None)
         if not category:
             raise ValueError("No category specified.")
+        else:
+            category = self.categories[category]
         category_url = self._list_url(category)
 
-        results = self._NUM_COLLECTIONS
+        results = self._num_collections
         page = 0
         children = 1
         collections = []
@@ -368,8 +384,4 @@ class PlayScraper(object):
 
             page += 1
 
-        apps = []
-        for c in collections:
-            apps += self.parse_collection(c)
-
-        return apps
+        return collections
