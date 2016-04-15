@@ -1,4 +1,6 @@
 *.json
 *.pyc
 *.log
+optimizing
+timings.py
 optimizing.py

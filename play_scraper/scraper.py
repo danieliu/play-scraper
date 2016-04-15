@@ -1,147 +1,78 @@
 # -*- coding: utf-8 -*-
 
-import requests
+import json
 import urlparse
 
-import grequests
+import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
-from logger import configure_logging
-from settings import (BASE_URL, HEADERS, VERIFY_SSL, CONCURRENT_REQUESTS,
-    NUM_COLLECTIONS, NUM_RESULTS, CATEGORIES, COLLECTIONS)
+# from .logger import configure_logging
+from .lists import CATEGORIES, COLLECTIONS
+from .utils import (build_app_url, build_developer_url, build_collection_url, send_request,
+    generate_post_data, multi_request)
+
+
+BASE_URL = 'https://play.google.com'
+SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
+NUM_RESULTS = 60
+DEV_RESULTS = 24
 
 
 class PlayScraper(object):
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.categories = CATEGORIES
         self.collections = COLLECTIONS
         self._base_url = BASE_URL
-        self._verify = VERIFY_SSL
-        self._headers = HEADERS
-        self._num_results = NUM_RESULTS
-        self._num_collections = NUM_COLLECTIONS
-        self._logger = configure_logging()
+        self._suggestion_url = SUGGESTION_URL
 
-    def _handle_grequest_exception(self, request, exception):
-        self._logger.error("{exception} with {url}".format(
-            exception=exception, url=request.url))
-        return None
+    def _parse_card_info(self, soup):
+        """Extracts basic app info from the app's card. Used when parsing pages
+        with lists of apps.
 
-    def _app_url(self, app_id):
+        :param soup: a BeautifulSoup object of an app's card
+        :return: a dictionary of available basic app info
         """
-        Returns a full url string to the corresponding app id
-        """
-        return "{base}/details?id={app_id}".format(
-            base=self._base_url,
-            app_id=app_id)
+        app_id = soup.attrs['data-docid']
+        url = urlparse.urljoin(
+            self._base_url, soup.select_one('a.card-click-target').attrs['href'])
+        icon = urlparse.urljoin(
+            self._base_url,
+            soup.select_one('img.cover-image').attrs['src'].split('=')[0])
+        title = soup.select_one('a.title').attrs['title']
+        developer = soup.select_one('a.subtitle').attrs['title']
+        description = soup.select_one('div.description').text.strip()
+        score = soup.select_one('div.tiny-star')
+        if score is not None:
+            score = score.attrs['aria-label'].strip().split(' ')[1]
+        price = soup.select_one('span.display-price').string
+        free = (price == 'Free')
+        if free is True:
+            price = '0'
 
-    def _list_url(self, category='', collection=''):
-        """
-        Creates the absolute url based on the category and collection id's.
-        """
-        if category:
-            category = "/category/{cat_id}".format(cat_id=category['category_id'])
-        if collection:
-            collection = "/collection/{col_id}".format(col_id=collection['collection_id'])
-        return "{base}{category}{collection}".format(
-            base=self._base_url,
-            category=category,
-            collection=collection)
-
-    def _get_soup(self, url, method='POST', data={}, strainer=None):
-        """
-        Sends a request to the url and turns the response into a soup object.
-        """
-        params = {'parse_only': strainer} if strainer else {}
-        if not data and method == 'POST':
-            data = self._generate_post_data()
-        try:
-            self._logger.info("Sending {method} to '{url}'".format(
-                method=method, url=url))
-            response = requests.request(
-                method=method,
-                url=url,
-                data=data,
-                headers=self._headers,
-                verify=self._verify)
-            if response.status_code == requests.codes.ok:
-                soup = BeautifulSoup(response.content, 'lxml', **params)
-                self._logger.info("Soup created.")
-                return soup
-            else:
-                response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            self._logger.error("{e} at {url}".format(e=e, url=url))
-            raise
-
-    def _generate_post_data(self, results=None, page=None, children=0):
-        """
-        Creates the post data for a POST request. Mainly for pagination and
-        limiting results.
-        """
-        data = {
-            'ipf': 1,
-            'xhr': 1
+        return {
+            'app_id': app_id,
+            'url': url,
+            'icon': icon,
+            'title': title,
+            'developer': developer,
+            'description': description,
+            'score': score,
+            'price': price,
+            'free': free
         }
-        if children:
-            data['numChildren'] = children
-        if results is not None and page is not None:
-            start = 0 if page <= 0 else results * page
-            data['start'] = start
-            data['num'] = results
-        return data
 
-    def _get_categories(self):
+    def _parse_app_details(self, soup):
+        """Extracts an app's details from its info page.
+
+        :param soup: a strained BeautifulSoup object of an app
+        :return: a dictionary of app details
         """
-        Sends a GET request to the front page (base url of the app store),
-        parses and returns a list of all available categories.
-
-        May contain some promotions, e.g. "Popular Characters"
-        """
-        categories = {}
-        home_page = self._base_url
-        strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
-
-        soup = self._get_soup(home_page, strainer=strainer)
-        category_links = soup.select('a.child-submenu-link')
-
-        for cat in category_links:
-            url = cat.attrs['href']
-            category_id = url.split('/')[-1]
-            categories[category_id] = {
-                'name': cat.string,
-                'url': url,
-                'category_id': category_id}
-        return categories
-
-    def _get_collections(self, soup):
-        """
-        Parse collection titles, ids, and URLs from the top-level category and
-        return them in a list.
-        """
-        collections = []
-        links = soup.select('a.see-more')
-        for a in links:
-            name = a.parent.previous_sibling.previous_sibling.string
-            name_id = name.upper().replace(' ', '_')
-            url = a.attrs['href']
-            collection_id = url.split('/')[-1]
-            if name_id not in self.collections:
-                self.collections[name_id] = {
-                    'name': name,
-                    'url': url,
-                    'collection_id': collection_id
-                }
-                collections.append(name_id)
-        return collections
-
-    def _get_app_details(self, soup):
         app_id = soup.select_one('span.play-button').attrs['data-docid']
         url = soup.select_one('meta[itemprop="url"]').attrs['content']
         title = soup.select_one('div.id-app-title').string
         icon = urlparse.urljoin(
             self._base_url,
-            soup.select_one('img.cover-image').attrs['src'])
+            soup.select_one('img.cover-image').attrs['src'].split('=')[0])
         screenshots = [urlparse.urljoin(
             self._base_url,
             s.attrs['src']) for s in soup.select('img.full-screenshot')]
@@ -151,7 +82,7 @@ class PlayScraper(object):
 
         try:
             video = soup.select_one('span.preview-overlay-container').attrs.get('data-video-url', None)
-            if video:
+            if video is not None:
                 video = video.split('?')[0]
         except AttributeError:
             video = None
@@ -160,7 +91,8 @@ class PlayScraper(object):
         category = [{
             'name': c.span.string,
             'category_id': c.attrs['href'].split('/')[-1],
-            'url': c.attrs['href']} for c in soup.select('.category')]
+            'url': urlparse.urljoin(
+                self._base_url, c.attrs['href'])} for c in soup.select('.category')]
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
         description = "\n".join([x.replace(u"’", u"'").encode('utf-8') for x in description_soup.stripped_strings])
@@ -186,6 +118,7 @@ class PlayScraper(object):
 
         recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
+        editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
         price = soup.select_one('meta[itemprop="price"]').attrs['content']
         free = (price == '0')
 
@@ -225,9 +158,7 @@ class PlayScraper(object):
                 iap_price_index = meta_info_titles.index('In-app Products')
                 in_app_purchases = meta_info[iap_price_index].string
             except ValueError:
-                self._logger.warning(
-                    "IAP range not found for '{app}'".format(
-                        app=app_id))
+                in_app_purchases = 'Not Available'
                 pass
 
         developer = soup.select_one('span[itemprop="name"]').string
@@ -238,8 +169,6 @@ class PlayScraper(object):
         developer_address = additional_info.select_one('.physical-address')
         if developer_address:
             developer_address = developer_address.string
-
-        self._logger.info("Parsed app details for '{app}'".format(app=title.encode('utf-8')))
 
         return {
             'app_id': app_id,
@@ -257,6 +186,7 @@ class PlayScraper(object):
             'description_html': description_html,
             'recent_changes': recent_changes,
             'top_developer': top_developer,
+            'editors_choice': editors_choice,
             'price': price,
             'free': free,
             'updated': updated,
@@ -274,114 +204,88 @@ class PlayScraper(object):
             'developer_address': developer_address
         }
 
-    def app(self, app_id=None):
-        """
-        Fetches an application's details.
-        """
-        if not app_id:
-            raise ValueError("No App ID provided.")
+    def details(self, app_id):
+        """Sends a GET request, parses the app's details, and returns them as a dict.
 
-        url = self._app_url(app_id)
-        soup = self._get_soup(url, method='GET')
-        return self._get_app_details(soup)
+        :param app: ID of an app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :return: a dictionary of app details
+        """
+        url = build_app_url(app_id)
+        response = send_request('GET', url)
+        soup = BeautifulSoup(response.content, 'lxml')
+        return self._parse_app_details(soup)
 
-    def collection(self, **kwargs):
+    def collection(self, collection, category=None, results=None, page=None, detailed=False):
         """
         Fetches applications from a collection and returns their details in a list
 
-        :param collection: (optional, defaults to TOP_FREE) the collection name,
-            e.g. 'TOP_NEW_FREE'
-        :param category: (optional) the category name, e.g. 'ANDROID_WEAR'.
+        :param collection: the collection id, e.g. 'NEW_FREE'.
+        :param category: (optional) the category name, e.g. 'GAME_ACTION'.
+        :param results: the number of apps to retrieve at a time.
+        :param page: page number to retrieve; limitation: page * results <= 500.
+        :param detailed: bool, whether to send request per app for full detail
+        :return: a list of dictionary objects
         """
-        collection_id = kwargs.pop('collection', 'TOP_FREE')
-        category_id = kwargs.pop('category', '')
+        collection = self.collections[collection]
+        category = '' if category is None else self.categories[category]
+        results = NUM_RESULTS if results is None else results
+        page = 0 if page is None else page
 
-        collection = self.collections[collection_id]
-        if category_id:
-            category = self.categories[category_id]
+        url = build_collection_url(category, collection)
+        data = generate_post_data(results, page)
+        response = send_request('POST', url, data)
 
-        url = self._list_url(category, collection)
-        list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
-        app_strainer = SoupStrainer('div', {'class': 'main-content'})
+        if detailed:
+            list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
+            soup = BeautifulSoup(response.content, 'lxml', parse_only=list_strainer)
 
-        page = 0
-        apps = []
-
-        while True:
-            self._logger.info("Retrieving page {page} of {col}".format(
-                page=page, col=collection['name']))
-
-            post_data = self._generate_post_data(self._num_results, page)
-            soup = self._get_soup(url, data=post_data, strainer=list_strainer)
-            current_apps = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
-
-            reqs = (grequests.request(
-                method='GET',
-                url=self._app_url(app_id),
-                headers=self._headers,
-                verify=self._verify) for app_id in current_apps)
-            responses = grequests.map(
-                reqs,
-                size=CONCURRENT_REQUESTS,
-                exception_handler=self._handle_grequest_exception)
-
-            self._logger.info("Parsing {num} apps...".format(num=len(responses)))
-
+            app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
+            responses = multi_request(app_ids)
+            app_strainer = SoupStrainer('div', {'class': 'main-content'})
+            apps = []
             for i, response in enumerate(responses):
-                if not response:
-                    self._logger.info("No response for '{app_id}'".format(
-                        app_id=current_apps[i]))
-                else:
-                    if not response.status_code == requests.codes.ok:
-                        self._logger.error("{e} at {url}".format(
-                            e=response.status_code,
-                            url=response.url))
-                    else:
-                        soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
-                        apps.append(self._get_app_details(soup))
-
-            page += 1
-
-            if len(current_apps) < self._num_results or page * self._num_results > 500:
-                break
-
-        self._logger.info("Parsed {num} apps from {cat}'s {col}".format(
-            num=len(apps), cat=category['name'], col=collection['name']))
+                if response is not None and response.status_code == requests.codes.ok:
+                    soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
+                    apps.append(self._parse_app_details(soup))
+        else:
+            soup = BeautifulSoup(response.content, 'lxml')
+            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
         return apps
 
-    def category(self, **kwargs):
+    def developer(self, developer, results=None):
+        """Sends a POST request and retrieves a list of the developer's published
+        applications on the Play Store.
+
+        :param developer: developer's ID to retrieve apps from, e.g. 'Disney'
+        :return: a list of apps
         """
-        Main scraping function.
+        results = DEV_RESULTS if results is None else results
+        url = build_developer_url(developer)
+        data = generate_post_data(results)
+        response = send_request('POST', url, data)
+        soup = BeautifulSoup(response.content, 'lxml')
+        apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+        return apps
 
-        Sends a POST request to a category's url, paginates and retrieves all
-        collection urls that are not in the BASE collections.
-        Parse each app's details.
+    def suggestions(self, query):
+        """Sends a GET request to the Play Store search suggestion API and returns
+        the results in a list.
+
+        :param query: Search query term(s) to retrieve autocomplete suggestions
+        :return: a list of suggested search queries, up to 5
         """
-        category = kwargs.pop('category', None)
-        if not category:
-            raise ValueError("No category specified.")
-        else:
-            category = self.categories[category]
-        category_url = self._list_url(category)
+        if not query:
+            raise ValueError("Cannot get suggestions for an empty query.")
 
-        results = self._num_collections
-        page = 0
-        children = 1
-        collections = []
+        params = {
+            'json': 1,
+            'c': 0,
+            'hl': 'en',
+            'gl': 'us',
+            'query': query
+        }
 
-        while True:
-            post_data = self._generate_post_data(results, page, children)
-            soup = self._get_soup(category_url, data=post_data)
-            current = self._get_collections(soup)
-            collections += current
-
-            # 4/5/2016 Note: Play Store adds an ad now so may be one less
-            # collection end loop when less than expected number of results, i.e.
-            # reached max available collections
-            if len(current) < (results - 1):
-                break
-
-            page += 1
-
-        return collections
+        response = send_request('GET', self._suggestion_url, params=params)
+        suggestions = [q['s'] for q in json.loads(response.content)]
+        return suggestions

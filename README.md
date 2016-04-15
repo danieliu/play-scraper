@@ -10,79 +10,128 @@ pip install -r requirements.txt
 
 ### Usage
 
-* [app](#app): Fetches the details of an application.
-* [collection](#collection): Fetches a list of application details.
+* [details](#details): Fetches the details of an application.
+* [collection](#collection): Fetches a list of applications and their details.
+* [developer](#developer): Fetches applications offered by a developer.
+* [suggestion](#suggestion): Fetches a list of query string suggestions.
+* [search](#search): Fetches applications matching a search query.
 
-#### app
+#### details
 
-Fetch an application's details by its id.
+Fetch an application's details by its `app_id`, e.g. `com.android.chrome` for Google Chrome.
 
-For example:
 ```python
-from play_scraper import PlayScraper
-
-scraper = PlayScraper()
-print(scraper.app('com.miniclip.basketballstars'))
-```
-
-Result:
-```python
+>>> import play_scraper
+>>> print(play_scraper.details('com.android.chrome'))
 {   
-    'app_id': 'com.miniclip.basketballstars',
-    'category': [{'category_id': 'GAME_SPORTS', 'name': u'Sports', 'url': '/store/apps/category/GAME_SPORTS'}],
+    'app_id': 'com.android.chrome',
+    'category': [{'category_id': 'COMMUNICATION', 'name': u'Communication', 'url': 'https://play.google.com/store/apps/category/COMMUNICATION'}],
     'content_rating': u'Everyone',
-    'current_version': u'1.0.3',
-    'description': "The world's best multiplayer Basketball game on mobile, from the creators of multiple smash-hit online sports games!\nDribble, shoot, score, WIN! Grab the ball and take on the world with BASKETBALL STARS.\n ...",
-    'description_html': 'The world\'s best multiplayer Basketball game on mobile, from the creators of multiple smash-hit online sports games!<p>Dribble, shoot, score, WIN! Grab the ball and take on the world with BASKETBALL STARS.</p> ...',
-    'developer': u'Miniclip.com',
-    'developer_address': u'Miniclip SA\nCase Postale 2671\n2001 Neuch\xe2tel\nSwitzerland',
-    'developer_email': 'support@miniclip.com',
-    'developer_url': 'http://www.miniclip.com/',
+    'current_version': u'Varies with device',
+    'description': 'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left ...',
+    'description_html': 'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/> ...',
+    'developer': u'Google Inc.',
+    'developer_address': u'1600 Amphitheatre Parkway, Mountain View 94043',
+    'developer_email': 'apps-help@google.com',
+    'developer_url': 'http://www.google.com/chrome/android',
+    'editors_choice': False,
     'free': True,
-    'histogram': {1: 13743, 2: 3757, 3: 9321, 4: 24500, 5: 108008},
-    'icon': 'https://lh3.googleusercontent.com/Phk5qqQ1Fs-mQACNeuZjqsWIJJknpoSXBmQFi0vRw2IlO0nZ7H8O8rYUvwcVvfk-wdY=w300-rw',
-    'in_app_purchases': u'In-app Products',
-    'installs': [5000000, 10000000],
-    'interactive_elements': [u'Digital Purchases'],
-    'offers_iap': True,
+    'histogram': {1: 350676, 2: 158345, 3: 325869, 4: 733685, 5: 2674148},
+    'icon': 'https://lh3.ggpht.com/O0aW5qsyCkR2i7Bu-jUU1b5BWA_NygJ6ui4MgaAvL7gfqvVWqkOBscDaq4pn-vkwByUx',
+    'in_app_purchases': None,
+    'installs': [1000000000, 5000000000],
+    'interactive_elements': [u'Unrestricted Internet'],
+    'offers_iap': False,
     'price': '0',
-    'recent_changes': u'\u2022 Weekly leaderboard competition \u2013 showcase your skills against the best in your country. Can you be the champion? ...',
-    'required_android_version': u'4.0.3 and up',
-    'reviews': 159329,
-    'score': 4.313464641571045,
-    'screenshots': ['https://lh3.googleusercontent.com/dxK8v2v3EcHqAt2mF-jeihBYhWq7iQRa0fGeIb0N5FEbnnUSgnDCcaPn1omYW6MHQg=h900-rw', ...],
-    'size': u'43M',
-    'thumbnails': ['https://lh3.googleusercontent.com/dxK8v2v3EcHqAt2mF-jeihBYhWq7iQRa0fGeIb0N5FEbnnUSgnDCcaPn1omYW6MHQg=h310-rw', ...],
-    'title': u'Basketball Stars',
+    'recent_changes': u'Bug fixes and speedy performance improvements.',
+    'required_android_version': u'Varies with device',
+    'reviews': 4242723,
+    'score': 4.230880260467529,
+    'screenshots': ['https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h900-rw', ...],
+    'size': u'Varies with device',
+    'thumbnails': ['https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h310-rw', ...],
+    'title': u'Chrome Browser - Google',
     'top_developer': True,
-    'updated': u'March 14, 2016',
-    'url': 'https://play.google.com/store/apps/details?id=com.miniclip.basketballstars',
+    'updated': u'March 25, 2016',
+    'url': 'https://play.google.com/store/apps/details?id=com.android.chrome',
     'video': None
 }
 ```
 
 #### collection
 
-Fetch a full list of applications and their details.
+Fetch a list of applications from a collection and an optional category.
 
-* `collection` (optional, default `TOP_FREE`) See [settings](https://github.com/danieliu/PlayScraper/blob/master/play_scraper/settings.py#L23) for a list of options.
-* `category` (optional) See [settings](https://github.com/danieliu/PlayScraper/blob/master/play_scraper/settings.py#L79) for a list of options.
+Options:
 
-For example:
+* `collection` a [collection](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L59) to fetch.
+* `category` (optional) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L3) to filter by.
+* `results` (default 60) the number of apps to fetch.
+* `page` (default 0) the page number to get. Multiplies by `results` to get the collection start index. Limit: `page * results <= 500`.
+* `detailed` (default False) if True, sends a GET request per app to fetch the full details as in [details](#details).
 
 ```python
-from play_scraper import PlayScraper
-
-scraper = PlayScraper()
-print scraper.collection(
-    category='GAME_ACTION',
-    collection='TRENDING')
+>>> import play_scraper
+>>> print play_scraper.collection(
+    collection='TRENDING',
+    category='GAME_RACING',
+    results=5,
+    page=1)
+[ { 'app_id': 'com.tinylabproductions.firefighters',
+    'description': u'Grab your favorite fire fighters ride and go for a true hero adventure!',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/D3K9lGOrmBkvUyAdQSNslDE6Y_ma7CQO1YZ57kMJZ-hTIcyS_oTGEZTGOXR7JqqS6W4',
+    'price': '0',
+    'score': '3.8',
+    'title': 'Fire Fighters Racing for Kids',
+    'url': 'https://play.google.com/store/apps/details?id=com.tinylabproductions.firefighters'},
+  { 'app_id': 'com.labexception.truckdrivercargo',
+    'description': u'Drive trucks through dangerous roads and deliver cargo',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/_N_baVt-zIlPvuJEFvo3Bn3ywhDl_kNzH89VU2tbrHtbyDW2dt-gb5sXugdMML9fKA',
+    'price': '0',
+    'score': '3.9',
+    'title': 'Truck Driver Cargo',
+    'url': 'https://play.google.com/store/apps/details?id=com.labexception.truckdrivercargo'}, ...]
 ```
 
+#### developer
+
+Fetch a list of applications by a developer.
+
+Options:
+
+* `developer` the developer name to fetch applications, e.g. `Disney`. (Case sensitive)
+* `results` (default 24) the number of apps to fetch. (Developer may have more or less published apps)
+* `detailed` (default False) if True, sends a GET request per app to fetch the full details as in [details](#details).
+
+```python
+>>> import play_scraper
+>>> print play_scraper.developer('Disney', results=5)
+[ { 'app_id': 'com.disney.disneycrossyroad_goo',
+    'description': u'An all-new take on the ultimate 8-bit endless adventure to cross the road!',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/mHHQ-GA_hu8shAEtzj8trGBOJK7dtMrmV4XXvjl49MQbIDHytb8kQenB4IaUB9NvYA',
+    'price': '0',
+    'score': '4.5',
+    'title': 'Disney Crossy Road',
+    'url': 'https://play.google.com/store/apps/details?id=com.disney.disneycrossyroad_goo'},
+  { 'app_id': 'com.disney.disneydescendants_goo',
+    'description': u'Join Mal, Evie, Jay & Carlos for a wickedly fun adventure in Descendants!',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/uzyRRHl7Jxy_TN1WKvp0rf1q9sS05JcTzmhILZI16Gbu4N7TGP88nHSQTPfBKwor5g',
+    'price': '0',
+    'score': '3.7',
+    'title': 'Descendants',
+    'url': 'https://play.google.com/store/apps/details?id=com.disney.disneydescendants_goo'}, ...]
+```
+
+#### suggestions
 
 
 ### Tests
 
 Running tests:
-
-    python -m unittest discover [-v]
+```
+python -m unittest discover
+```

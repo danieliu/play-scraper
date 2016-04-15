@@ -1,25 +1,5 @@
-# Scraper Settings
+# -*- coding: utf-8 -*-
 
-BASE_URL = 'https://play.google.com/store/apps'
-HEADERS = {
-    'origin': 'https://play.google.com',
-    'user-agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/45.0.2454.101 Safari/537.36',
-    'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-}
-VERIFY_SSL = True
-CONCURRENT_REQUESTS = 10
-
-# Number of 'promotional' collection results
-NUM_COLLECTIONS = 20
-
-# Number of app results, max 120
-NUM_RESULTS = 60
-
-
-# App categories and collections
 CATEGORIES = {
     "ANDROID_WEAR": {"url": "/store/apps/category/ANDROID_WEAR", "category_id": "ANDROID_WEAR", "name": "Android Wear"},
     "BOOKS_AND_REFERENCE": {"url": "/store/apps/category/BOOKS_AND_REFERENCE", "category_id": "BOOKS_AND_REFERENCE", "name": "Books & Reference"},
@@ -77,8 +57,8 @@ CATEGORIES = {
 }
 
 COLLECTIONS = {
-    'TOP_NEW_FREE': {'name': 'Top New Free', 'collection_id': 'topselling_new_free'},
-    'TOP_NEW_PAID': {'name': 'Top New Paid', 'collection_id': 'topselling_new_paid'},
+    'NEW_FREE': {'name': 'Top New Free', 'collection_id': 'topselling_new_free'},
+    'NEW_PAID': {'name': 'Top New Paid', 'collection_id': 'topselling_new_paid'},
     'TOP_FREE': {'name': 'Top Free', 'collection_id': 'topselling_free'},
     'TOP_PAID': {'name': 'Top Paid', 'collection_id': 'topselling_paid'},
     'TOP_GROSSING': {'name': 'Top Grossing', 'collection_id': 'topgrossing'},
