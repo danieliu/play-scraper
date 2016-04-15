@@ -5,8 +5,7 @@ import logging
 
 from play_scraper.settings import CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
-    build_app_url,
-    build_developer_url,
+    build_url,
     build_collection_url,
     generate_post_data)
 
@@ -23,17 +22,17 @@ class BasicSetup(unittest.TestCase):
 class TestBuildAppUrl(unittest.TestCase):
     def test_building_app_url(self):
         expected = 'https://play.google.com/store/apps/details?id=com.facebook.orca'
-        assert build_app_url('com.facebook.orca') == expected
+        assert build_url('details', 'com.facebook.orca') == expected
 
 
 class TestBuildDevUrl(unittest.TestCase):
     def test_building_simple_dev_name(self):
         expected = 'https://play.google.com/store/apps/developer?id=Disney'
-        assert build_developer_url('Disney') == expected
+        assert build_url('developer', 'Disney') == expected
 
     def test_building_multiple_word_dev_name(self):
         expected = 'https://play.google.com/store/apps/developer?id=SQUARE+ENIX+INC'
-        assert build_developer_url('SQUARE ENIX INC') == expected
+        assert build_url('developer', 'SQUARE ENIX INC') == expected
 
 
 class TestBuildListUrl(BasicSetup):

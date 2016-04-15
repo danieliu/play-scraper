@@ -28,5 +28,6 @@ class TestScraperMethods(unittest.TestCase):
         assert len(apps[0].keys()) == 9
         assert apps[0]
 
+
 if __name__ == '__main__':
     unittest.main()

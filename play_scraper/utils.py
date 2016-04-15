@@ -6,9 +6,11 @@ import requests
 import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
-from .settings import BASE_URL
 from .logger import configure_logging
 
+
+BASE_URL = 'https://play.google.com/store/apps'
+SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
 
 CONCURRENT_REQUESTS = 10
 USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
@@ -27,7 +29,7 @@ def default_headers():
     return {
         'Origin': 'https://play.google.com',
         'User-Agent': USER_AGENT,
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'Content-obj_type': 'application/x-www-form-urlencoded;charset=UTF-8',
     }
 
 
@@ -57,24 +59,19 @@ def generate_post_data(results=None, page=None, children=0):
     return data
 
 
-def build_app_url(app):
-    """Creates the absolute url of an app.
+def build_url(obj_type, id_string):
+    """Creates the absolute url for a type of object. E.g. details, developer,
+    or similar.
 
-    :param app: ID of an app to retrieve details from, e.g. 'com.nintendo.zaaa'
+    :param obj_type: the object type to get
+    :param id: the id query parameter string
     :return: a URL string
     """
-    url = "{base}/store/apps/details?id={app}".format(base=BASE_URL, app=app)
-    return url
+    if obj_type == 'developer':
+        id_string = urllib.quote_plus(id_string)
 
-
-def build_developer_url(developer):
-    """Creates the absolute url of a developer.
-
-    :param developer: ID of a developer to retrieve apps from, e.g. 'Disney'
-    :return: a URL string
-    """
-    dev = urllib.quote_plus(developer)
-    url = "{base}/store/apps/developer?id={dev}".format(base=BASE_URL, dev=dev)
+    url = "{base}/{obj_type}?id={id}".format(
+        base=BASE_URL, obj_type=obj_type, id=id_string)
     return url
 
 
@@ -87,7 +84,7 @@ def build_collection_url(category='', collection=''):
     if collection:
         collection = "/collection/{col_id}".format(col_id=collection['collection_id'])
 
-    url = "{base}/store/apps{category}{collection}".format(
+    url = "{base}{category}{collection}".format(
         base=BASE_URL,
         category=category,
         collection=collection)
@@ -136,7 +133,7 @@ def multi_request(apps, size=None, headers=None, verify=True):
 
     reqs = (
         grequests.get(
-            build_app_url(app_id),
+            build_url('details', app_id),
             headers=headers,
             verify=verify) for app_id in apps)
 

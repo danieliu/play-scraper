@@ -73,10 +73,10 @@ Options:
 ```python
 >>> import play_scraper
 >>> print play_scraper.collection(
-    collection='TRENDING',
-    category='GAME_RACING',
-    results=5,
-    page=1)
+        collection='TRENDING',
+        category='GAME_RACING',
+        results=5,
+        page=1)
 [ { 'app_id': 'com.tinylabproductions.firefighters',
     'description': u'Grab your favorite fire fighters ride and go for a true hero adventure!',
     'free': True,
@@ -110,6 +110,7 @@ Options:
 >>> print play_scraper.developer('Disney', results=5)
 [ { 'app_id': 'com.disney.disneycrossyroad_goo',
     'description': u'An all-new take on the ultimate 8-bit endless adventure to cross the road!',
+    'developer': 'Disney',
     'free': True,
     'icon': 'https://lh3.googleusercontent.com/mHHQ-GA_hu8shAEtzj8trGBOJK7dtMrmV4XXvjl49MQbIDHytb8kQenB4IaUB9NvYA',
     'price': '0',
@@ -118,6 +119,7 @@ Options:
     'url': 'https://play.google.com/store/apps/details?id=com.disney.disneycrossyroad_goo'},
   { 'app_id': 'com.disney.disneydescendants_goo',
     'description': u'Join Mal, Evie, Jay & Carlos for a wickedly fun adventure in Descendants!',
+    'developer': 'Disney',
     'free': True,
     'icon': 'https://lh3.googleusercontent.com/uzyRRHl7Jxy_TN1WKvp0rf1q9sS05JcTzmhILZI16Gbu4N7TGP88nHSQTPfBKwor5g',
     'price': '0',
@@ -128,10 +130,17 @@ Options:
 
 #### suggestions
 
+Fetch a list of autocompleted query suggestions.
+
+```python
+>>> import play_scraper
+>>> print play_scraper.suggestions('cat')
+[u'cat games', u'cat simulator', u'cat sounds', u'cat games for cats']
+```
 
 ### Tests
 
-Running tests:
+Run tests:
 ```
 python -m unittest discover
 ```

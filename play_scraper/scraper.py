@@ -8,12 +8,10 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 # from .logger import configure_logging
 from .lists import CATEGORIES, COLLECTIONS
-from .utils import (build_app_url, build_developer_url, build_collection_url, send_request,
-    generate_post_data, multi_request)
+from .utils import (BASE_URL, SUGGESTION_URL, build_url, build_collection_url,
+    send_request, generate_post_data, multi_request)
 
 
-BASE_URL = 'https://play.google.com'
-SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
 NUM_RESULTS = 60
 DEV_RESULTS = 24
 
@@ -210,7 +208,7 @@ class PlayScraper(object):
         :param app: ID of an app to retrieve details from, e.g. 'com.nintendo.zaaa'
         :return: a dictionary of app details
         """
-        url = build_app_url(app_id)
+        url = build_url('details', app_id)
         response = send_request('GET', url)
         soup = BeautifulSoup(response.content, 'lxml')
         return self._parse_app_details(soup)
@@ -253,7 +251,7 @@ class PlayScraper(object):
 
         return apps
 
-    def developer(self, developer, results=None):
+    def developer(self, developer, results=None, detailed=False):
         """Sends a POST request and retrieves a list of the developer's published
         applications on the Play Store.
 
@@ -261,11 +259,23 @@ class PlayScraper(object):
         :return: a list of apps
         """
         results = DEV_RESULTS if results is None else results
-        url = build_developer_url(developer)
+        url = build_url('developer', developer)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
         soup = BeautifulSoup(response.content, 'lxml')
-        apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+
+        if detailed:
+            app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
+            responses = multi_request(app_ids)
+            app_strainer = SoupStrainer('div', {'class': 'main-content'})
+            apps = []
+            for i, response in enumerate(responses):
+                if response is not None and response.status_code == requests.codes.ok:
+                    soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
+                    apps.append(self._parse_app_details(soup))
+        else:
+            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+
         return apps
 
     def suggestions(self, query):
