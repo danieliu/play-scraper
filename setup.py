@@ -1,7 +1,10 @@
+import re
 from setuptools import setup
 
 
-version = __import__('play_scraper').__version__
+with open('play_scraper/__init__.py', 'r') as f:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        f.read(), re.MULTILINE).group(1)
 
 setup(
     name='play_scraper',
