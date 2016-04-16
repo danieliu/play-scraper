@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import json
-import urlparse
 import urllib
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
@@ -32,9 +35,9 @@ class PlayScraper(object):
         :return: a dictionary of available basic app info
         """
         app_id = soup.attrs['data-docid']
-        url = urlparse.urljoin(
+        url = urljoin(
             self._base_url, soup.select_one('a.card-click-target').attrs['href'])
-        icon = urlparse.urljoin(
+        icon = urljoin(
             self._base_url,
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
         title = soup.select_one('a.title').attrs['title']
@@ -69,13 +72,13 @@ class PlayScraper(object):
         app_id = soup.select_one('span.play-button').attrs['data-docid']
         url = soup.select_one('meta[itemprop="url"]').attrs['content']
         title = soup.select_one('div.id-app-title').string
-        icon = urlparse.urljoin(
+        icon = urljoin(
             self._base_url,
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
-        screenshots = [urlparse.urljoin(
+        screenshots = [urljoin(
             self._base_url,
             img.attrs['src']) for img in soup.select('img.full-screenshot')]
-        thumbnails = [urlparse.urljoin(
+        thumbnails = [urljoin(
             self._base_url,
             img.attrs['src']) for img in soup.select('img.screenshot')]
 
@@ -90,7 +93,7 @@ class PlayScraper(object):
         category = [{
             'name': c.span.string,
             'category_id': c.attrs['href'].split('/')[-1],
-            'url': urlparse.urljoin(
+            'url': urljoin(
                 self._base_url, c.attrs['href'])} for c in soup.select('.category')]
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
