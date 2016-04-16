@@ -17,9 +17,17 @@ class TestScraperMethods(unittest.TestCase):
 
     def test_fetching_collection_non_detailed(self):
         apps = self.s.collection('NEW_FREE', results=2)
+        page2 = self.s.collection('NEW_FREE', page=1)
 
         assert len(apps) == 2
         assert len(apps[0].keys()) == 9
+        assert not apps == page2
+
+    def test_fetching_collection_detailed(self):
+        apps = self.s.collection('TOP_FREE', results=1, detailed=True)
+
+        assert len(apps) == 1
+        assert len(apps[0].keys()) == 31
 
     def test_fetching_developer(self):
         apps = self.s.developer('Disney', results=5)

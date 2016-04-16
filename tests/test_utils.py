@@ -3,7 +3,7 @@
 import unittest
 import logging
 
-from play_scraper.settings import CATEGORIES, COLLECTIONS
+from play_scraper.lists import CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
     build_url,
     build_collection_url,
@@ -19,13 +19,11 @@ class BasicSetup(unittest.TestCase):
         self.collection = COLLECTIONS['TOP_FREE']
 
 
-class TestBuildAppUrl(unittest.TestCase):
+class TestBuildUrl(unittest.TestCase):
     def test_building_app_url(self):
         expected = 'https://play.google.com/store/apps/details?id=com.facebook.orca'
         assert build_url('details', 'com.facebook.orca') == expected
 
-
-class TestBuildDevUrl(unittest.TestCase):
     def test_building_simple_dev_name(self):
         expected = 'https://play.google.com/store/apps/developer?id=Disney'
         assert build_url('developer', 'Disney') == expected
@@ -55,20 +53,37 @@ class TestBuildListUrl(BasicSetup):
 
 
 class TestGeneratePostData(unittest.TestCase):
+    def setUp(self):
+        self.results = 40
+        self.page = 0
+        self.pag_tok = 'GAEiAggU:S:ANO1ljLtUJw'
+
     def test_default_post_data(self):
         expected = {'ipf': 1, 'xhr': 1}
         assert generate_post_data() == expected
 
     def test_only_num_results(self):
-        results = 40
-        expected = {'ipf': 1, 'xhr': 1, 'num': results}
-        assert generate_post_data(results) == expected
+        expected = {'ipf': 1, 'xhr': 1, 'num': self.results}
+        assert generate_post_data(self.results) == expected
 
     def test_first_page_data(self):
-        page = 0
-        results = 60
-        expected = {'ipf': 1, 'xhr': 1, 'start': 0, 'num': 60}
-        assert generate_post_data(results, page) == expected
+        expected = {
+            'ipf': 1,
+            'xhr': 1,
+            'start': self.page * self.results,
+            'num': self.results
+        }
+        assert generate_post_data(self.results, self.page) == expected
+
+    def test_page_token(self):
+        expected = {
+            'ipf': 1,
+            'xhr': 1,
+            'start': 0,
+            'num': 0,
+            'pagTok': self.pag_tok
+        }
+        assert generate_post_data(0, 0, self.pag_tok) == expected
 
 
 if __name__ == '__main__':

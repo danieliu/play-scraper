@@ -13,7 +13,7 @@ pip install -r requirements.txt
 * [details](#details): Fetches the details of an application.
 * [collection](#collection): Fetches a list of applications and their details.
 * [developer](#developer): Fetches applications offered by a developer.
-* [suggestion](#suggestion): Fetches a list of query string suggestions.
+* [suggestions](#suggestions): Fetches a list of query string suggestions.
 * [search](#search): Fetches applications matching a search query.
 
 #### details
@@ -22,7 +22,7 @@ Fetch an application's details by its `app_id`, e.g. `com.android.chrome` for Go
 
 ```python
 >>> import play_scraper
->>> print(play_scraper.details('com.android.chrome'))
+>>> print play_scraper.details('com.android.chrome')
 {   
     'app_id': 'com.android.chrome',
     'category': [{'category_id': 'COMMUNICATION', 'name': u'Communication', 'url': 'https://play.google.com/store/apps/category/COMMUNICATION'}],
@@ -137,6 +137,34 @@ Fetch a list of autocompleted query suggestions.
 >>> print play_scraper.suggestions('cat')
 [u'cat games', u'cat simulator', u'cat sounds', u'cat games for cats']
 ```
+
+#### search
+
+Fetch a list of apps matching a search query.
+
+```python
+>>> import play_scraper
+>>> print play_scraper.search('dogs', page=2)
+[ { 'app_id': 'org.hanoo.dogtraining',
+    'description': u'Please prefer downloading the new version: DogTraining2',
+    'developer': 'hanoo.org',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/mzTl58Q8aWRSBGejWvoqm-UoPvxVV5tOevt8Rp4pZUKe2b1hKykeT4EMo4-2ngcSzF2Q',
+    'price': '0',
+    'score': '3.3',
+    'title': 'Dog Training',
+    'url': 'https://play.google.com/store/apps/details?id=org.hanoo.dogtraining'},
+  { 'app_id': 'com.lily.times.dog1.all',
+    'description': u'Talking Puppy repeats everything you say with a funny voice.',
+    'developer': 'Talking Baby',
+    'free': True,
+    'icon': 'https://lh6.ggpht.com/HkguMATxZvedgR3_FHTgg_UPtR7TR_lvVDIlx7t42tD5r6EPPTlctKb9rMdL9nnkmQ',
+    'price': '0',
+    'score': '4.4',
+    'title': 'Talking Puppy',
+    'url': 'https://play.google.com/store/apps/details?id=com.lily.times.dog1.all'}, ...]
+```
+
 
 ### Tests
 

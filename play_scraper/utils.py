@@ -6,43 +6,34 @@ import requests
 import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
-from .logger import configure_logging
-
-
-BASE_URL = 'https://play.google.com/store/apps'
-SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
-
-CONCURRENT_REQUESTS = 10
-USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
-    'AppleWebKit/537.36 (KHTML, like Gecko) '
-    'Chrome/45.0.2454.101 Safari/537.36')
-
-logger = configure_logging()
+import settings as s
 
 
 def _handle_grequest_exception(request, exception):
-    print("{exception} with {url}".format(exception=exception, url=request.url))
+    """Prints out the exception error from grequests."""
+    print "{exception} with {url}".format(exception=exception, url=request.url)
     return None
 
 
 def default_headers():
     return {
         'Origin': 'https://play.google.com',
-        'User-Agent': USER_AGENT,
-        'Content-obj_type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'User-Agent': s.USER_AGENT,
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     }
 
 
-def generate_post_data(results=None, page=None, children=0):
+def generate_post_data(results=None, page=None, pagtok=None, children=0):
     """
     Creates the post data for a POST request. Mainly for pagination and
     limiting results.
 
-    :param results: the number of results to return
-    :param page: the page number; used to calculate start = page * results
+    :param results: the number of results to return.
+    :param page: the page number; used to calculate start = page * results.
+    :param pagtok: a page token string for pagination in search.
     :param children: number of apps under each collection (used only when scraping
-        a top-level category's collections)
-    :return: a dictionary of post data
+        a top-level category's collections).
+    :return: a dictionary of post data.
     """
     data = {
         'ipf': 1,
@@ -55,29 +46,33 @@ def generate_post_data(results=None, page=None, children=0):
             start = 0 if page <= 0 else results * page
             data['start'] = start
         data['num'] = results
-
+    if pagtok is not None:
+        data['pagTok'] = pagtok
     return data
 
 
-def build_url(obj_type, id_string):
+def build_url(method, id_string):
     """Creates the absolute url for a type of object. E.g. details, developer,
     or similar.
 
-    :param obj_type: the object type to get
-    :param id: the id query parameter string
-    :return: a URL string
+    :param method: the corresponding method to get for an id.
+    :param id: an id string query parameter.
+    :return: a URL string.
     """
-    if obj_type == 'developer':
+    if method == 'developer':
         id_string = urllib.quote_plus(id_string)
 
-    url = "{base}/{obj_type}?id={id}".format(
-        base=BASE_URL, obj_type=obj_type, id=id_string)
+    url = "{base}/{method}?id={id}".format(
+        base=s.BASE_URL, method=method, id=id_string)
     return url
 
 
 def build_collection_url(category='', collection=''):
-    """
-    Creates the absolute url based on the category and collection id's.
+    """Creates the absolute url based on the category and collection id's.
+
+    :param category: the category to filter by.
+    :param collection: the collection to get.
+    :return: a formatted url string.
     """
     if category:
         category = "/category/{cat_id}".format(cat_id=category['category_id'])
@@ -85,7 +80,7 @@ def build_collection_url(category='', collection=''):
         collection = "/collection/{col_id}".format(col_id=collection['collection_id'])
 
     url = "{base}{category}{collection}".format(
-        base=BASE_URL,
+        base=s.BASE_URL,
         category=category,
         collection=collection)
 
@@ -99,7 +94,8 @@ def send_request(method, url, data=None, params=None, headers=None, verify=True)
     :param url: URL to send.
     :param data: Dictionary of post data to send.
     :param headers: Dictionary of headers to include.
-    :param verify: Bool for request SSL verification.
+    :param verify: a bool for requesting SSL verification.
+    :return: a Response object.
     """
     data = {} if data is None else data
     params = {} if params is None else params
@@ -118,17 +114,21 @@ def send_request(method, url, data=None, params=None, headers=None, verify=True)
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
     except requests.exceptions.RequestException:
-        return None
+        raise
 
     return response
 
 
-def multi_request(apps, size=None, headers=None, verify=True):
+def multi_app_request(apps, size=None, headers=None, verify=True):
     """Sends requests to each app and returns a list of responses.
 
-    :param apps: List of app IDs
+    :param apps: a list of app IDs.
+    :param size: the number of concurrent requests to allow.
+    :param headers: a dictionary of custom headers to include.
+    :param verify: a bool for requesting SSL verification.
+    :return: a list of Response objects.
     """
-    size = CONCURRENT_REQUESTS if size is None else size
+    size = s.CONCURRENT_REQUESTS if size is None else size
     headers = default_headers() if headers is None else headers
 
     reqs = (
@@ -145,6 +145,7 @@ def multi_request(apps, size=None, headers=None, verify=True):
     return responses
 
 
+# Unused
 def get_categories():
     """
     Sends a GET request to the front page (base url of the app store),
@@ -155,7 +156,7 @@ def get_categories():
     categories = {}
     strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
 
-    response = send_request('GET', BASE_URL)
+    response = send_request('GET', s.BASE_URL)
     soup = BeautifulSoup(response.content, 'lxml', parse_only=strainer)
     category_links = soup.select('a.child-submenu-link')
 

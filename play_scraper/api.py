@@ -62,3 +62,16 @@ def suggestions(query):
     """
     s = scraper.PlayScraper()
     return s.suggestions(query)
+
+
+def search(query, **kwargs):
+    """Sends a POST request to the Play Store search and returns the results
+    in a list.
+
+    :param query: search query term(s) to retrieve matching apps
+    :param page: the page number to retrieve. Max is 12.
+    :param detailed: if True, sends request per app for full detail
+    :return: a list of apps matching search terms
+    """
+    s = scraper.PlayScraper()
+    return s.search(query, **kwargs)

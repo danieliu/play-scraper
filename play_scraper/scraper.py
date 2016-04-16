@@ -2,26 +2,25 @@
 
 import json
 import urlparse
+import urllib
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
-# from .logger import configure_logging
+import settings as s
 from .lists import CATEGORIES, COLLECTIONS
-from .utils import (BASE_URL, SUGGESTION_URL, build_url, build_collection_url,
-    send_request, generate_post_data, multi_request)
-
-
-NUM_RESULTS = 60
-DEV_RESULTS = 24
+from .utils import (build_url, build_collection_url, send_request,
+    generate_post_data, multi_app_request)
 
 
 class PlayScraper(object):
     def __init__(self):
         self.categories = CATEGORIES
         self.collections = COLLECTIONS
-        self._base_url = BASE_URL
-        self._suggestion_url = SUGGESTION_URL
+        self._base_url = s.BASE_URL
+        self._suggestion_url = s.SUGGESTION_URL
+        self._search_url = s.SEARCH_URL
+        self._pagtok = s.PAGE_TOKENS
 
     def _parse_card_info(self, soup):
         """Extracts basic app info from the app's card. Used when parsing pages
@@ -73,10 +72,10 @@ class PlayScraper(object):
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
         screenshots = [urlparse.urljoin(
             self._base_url,
-            s.attrs['src']) for s in soup.select('img.full-screenshot')]
+            img.attrs['src']) for img in soup.select('img.full-screenshot')]
         thumbnails = [urlparse.urljoin(
             self._base_url,
-            s.attrs['src']) for s in soup.select('img.screenshot')]
+            img.attrs['src']) for img in soup.select('img.screenshot')]
 
         try:
             video = soup.select_one('span.preview-overlay-container').attrs.get('data-video-url', None)
@@ -150,13 +149,13 @@ class PlayScraper(object):
             pass
 
         offers_iap = bool(soup.select_one('div.inapp-msg'))
-        in_app_purchases = None
+        iap_range = None
         if offers_iap:
             try:
                 iap_price_index = meta_info_titles.index('In-app Products')
-                in_app_purchases = meta_info[iap_price_index].string
+                iap_range = meta_info[iap_price_index].string
             except ValueError:
-                in_app_purchases = 'Not Available'
+                iap_range = 'Not Available'
                 pass
 
         developer = soup.select_one('span[itemprop="name"]').string
@@ -194,13 +193,37 @@ class PlayScraper(object):
             'required_android_version': required_android_version,
             'content_rating': content_rating,
             'interactive_elements': interactive_elements,
-            'offers_iap': offers_iap,
-            'in_app_purchases': in_app_purchases,
+            'iap': offers_iap,
+            'iap_range': iap_range,
             'developer': developer,
             'developer_email': developer_email,
             'developer_url': developer_url,
             'developer_address': developer_address
         }
+
+    def _parse_multiple_apps(self, list_response):
+        """Extracts app ids from a list's Response object, sends GET requests to
+        each app, parses detailed info and returns all apps in a list.
+
+        :param list_response: the Response object from a list request
+        :return: a list of app dictionaries
+        """
+        list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
+        soup = BeautifulSoup(list_response.content, 'lxml', parse_only=list_strainer)
+
+        app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
+        responses = multi_app_request(app_ids)
+
+        app_strainer = SoupStrainer('div', {'class': 'main-content'})
+        apps = []
+        errors = []
+        for i, r in enumerate(responses):
+            if r is not None and r.status_code == requests.codes.ok:
+                soup = BeautifulSoup(r.content, 'lxml', parse_only=app_strainer)
+                apps.append(self._parse_app_details(soup))
+            else:
+                errors.append(app_ids[i])
+        return apps
 
     def details(self, app_id):
         """Sends a GET request, parses the app's details, and returns them as a dict.
@@ -222,11 +245,11 @@ class PlayScraper(object):
         :param results: the number of apps to retrieve at a time.
         :param page: page number to retrieve; limitation: page * results <= 500.
         :param detailed: bool, whether to send request per app for full detail
-        :return: a list of dictionary objects
+        :return: a list of app dictionaries
         """
         collection = self.collections[collection]
         category = '' if category is None else self.categories[category]
-        results = NUM_RESULTS if results is None else results
+        results = s.NUM_RESULTS if results is None else results
         page = 0 if page is None else page
 
         url = build_collection_url(category, collection)
@@ -234,17 +257,7 @@ class PlayScraper(object):
         response = send_request('POST', url, data)
 
         if detailed:
-            list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
-            soup = BeautifulSoup(response.content, 'lxml', parse_only=list_strainer)
-
-            app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
-            responses = multi_request(app_ids)
-            app_strainer = SoupStrainer('div', {'class': 'main-content'})
-            apps = []
-            for i, response in enumerate(responses):
-                if response is not None and response.status_code == requests.codes.ok:
-                    soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
-                    apps.append(self._parse_app_details(soup))
+            apps = self._parse_multiple_apps(response)
         else:
             soup = BeautifulSoup(response.content, 'lxml')
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
@@ -255,24 +268,19 @@ class PlayScraper(object):
         """Sends a POST request and retrieves a list of the developer's published
         applications on the Play Store.
 
-        :param developer: developer's ID to retrieve apps from, e.g. 'Disney'
-        :return: a list of apps
+        :param developer: developer name to retrieve apps from, e.g. 'Disney'
+        :param results: the number of app results to retrieve
+        :param detailed: if True, sends request per app for full detail
+        :return: a list of app dictionaries
         """
-        results = DEV_RESULTS if results is None else results
+        results = s.DEV_RESULTS if results is None else results
         url = build_url('developer', developer)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
         soup = BeautifulSoup(response.content, 'lxml')
 
         if detailed:
-            app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
-            responses = multi_request(app_ids)
-            app_strainer = SoupStrainer('div', {'class': 'main-content'})
-            apps = []
-            for i, response in enumerate(responses):
-                if response is not None and response.status_code == requests.codes.ok:
-                    soup = BeautifulSoup(response.content, 'lxml', parse_only=app_strainer)
-                    apps.append(self._parse_app_details(soup))
+            apps = self._parse_multiple_apps(response)
         else:
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
@@ -282,7 +290,7 @@ class PlayScraper(object):
         """Sends a GET request to the Play Store search suggestion API and returns
         the results in a list.
 
-        :param query: Search query term(s) to retrieve autocomplete suggestions
+        :param query: search query term(s) to retrieve autocomplete suggestions
         :return: a list of suggested search queries, up to 5
         """
         if not query:
@@ -299,3 +307,31 @@ class PlayScraper(object):
         response = send_request('GET', self._suggestion_url, params=params)
         suggestions = [q['s'] for q in json.loads(response.content)]
         return suggestions
+
+    def search(self, query, page=None, detailed=False):
+        """Sends a POST request to the Play Store search and returns the results
+        in a list.
+
+        :param query: search query term(s) to retrieve matching apps
+        :param page: the page number to retrieve. Max is 12.
+        :param detailed: if True, sends request per app for full detail
+        :return: a list of apps matching search terms
+        """
+        page = 0 if page is None else page
+        pagtok = self._pagtok[page]
+        data = generate_post_data(0, 0, pagtok)
+
+        params = {
+            'q': urllib.quote_plus(query),
+            'c': 'apps'
+        }
+
+        response = send_request('POST', self._search_url, data, params)
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        if detailed:
+            apps = self._parse_multiple_apps(response)
+        else:
+            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+
+        return apps
