@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
 import settings as s
+import logger
 from .lists import CATEGORIES, COLLECTIONS
 from .utils import (build_url, build_collection_url, send_request,
     generate_post_data, multi_app_request)
@@ -21,6 +22,7 @@ class PlayScraper(object):
         self._suggestion_url = s.SUGGESTION_URL
         self._search_url = s.SEARCH_URL
         self._pagtok = s.PAGE_TOKENS
+        self._log = logger.configure_logging()
 
     def _parse_card_info(self, soup):
         """Extracts basic app info from the app's card. Used when parsing pages
@@ -223,6 +225,11 @@ class PlayScraper(object):
                 apps.append(self._parse_app_details(soup))
             else:
                 errors.append(app_ids[i])
+
+        if errors:
+            self._log.error("There was an error parsing the following apps: {errors}.".format(
+                errors=", ".join(errors)))
+
         return apps
 
     def details(self, app_id):

@@ -7,11 +7,14 @@ import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
 import settings as s
+import logger
+
+log = logger.configure_logging()
 
 
 def _handle_grequest_exception(request, exception):
     """Prints out the exception error from grequests."""
-    print "{exception} with {url}".format(exception=exception, url=request.url)
+    log.error("{e} with {url}".format(e=exception, url=request.url))
     return None
 
 
@@ -113,7 +116,8 @@ def send_request(method, url, data=None, params=None, headers=None, verify=True)
             verify=verify)
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        log.error(e)
         raise
 
     return response
