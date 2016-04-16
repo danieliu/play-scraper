@@ -226,9 +226,9 @@ class PlayScraper(object):
         return apps
 
     def details(self, app_id):
-        """Sends a GET request, parses the app's details, and returns them as a dict.
+        """Sends a GET request and parses an application's details.
 
-        :param app: ID of an app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
         :return: a dictionary of app details
         """
         url = build_url('details', app_id)
@@ -237,14 +237,14 @@ class PlayScraper(object):
         return self._parse_app_details(soup)
 
     def collection(self, collection, category=None, results=None, page=None, detailed=False):
-        """
-        Fetches applications from a collection and returns their details in a list
+        """Sends a POST request and fetches a list of applications belonging to
+        the collection and an optional category.
 
         :param collection: the collection id, e.g. 'NEW_FREE'.
         :param category: (optional) the category name, e.g. 'GAME_ACTION'.
         :param results: the number of apps to retrieve at a time.
         :param page: page number to retrieve; limitation: page * results <= 500.
-        :param detailed: bool, whether to send request per app for full detail
+        :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
         collection = self.collections[collection]
@@ -270,7 +270,7 @@ class PlayScraper(object):
 
         :param developer: developer name to retrieve apps from, e.g. 'Disney'
         :param results: the number of app results to retrieve
-        :param detailed: if True, sends request per app for full detail
+        :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
         results = s.DEV_RESULTS if results is None else results
@@ -287,8 +287,8 @@ class PlayScraper(object):
         return apps
 
     def suggestions(self, query):
-        """Sends a GET request to the Play Store search suggestion API and returns
-        the results in a list.
+        """Sends a GET request and retrieves a list of autocomplete suggestions
+        matching the query term(s).
 
         :param query: search query term(s) to retrieve autocomplete suggestions
         :return: a list of suggested search queries, up to 5
@@ -309,12 +309,12 @@ class PlayScraper(object):
         return suggestions
 
     def search(self, query, page=None, detailed=False):
-        """Sends a POST request to the Play Store search and returns the results
-        in a list.
+        """Sends a POST request and retrieves a list of applications matching
+        the query term(s).
 
         :param query: search query term(s) to retrieve matching apps
         :param page: the page number to retrieve. Max is 12.
-        :param detailed: if True, sends request per app for full detail
+        :param detailed: if True, sends request per app for its full detail
         :return: a list of apps matching search terms
         """
         page = 0 if page is None else page
@@ -327,6 +327,28 @@ class PlayScraper(object):
         }
 
         response = send_request('POST', self._search_url, data, params)
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        if detailed:
+            apps = self._parse_multiple_apps(response)
+        else:
+            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+
+        return apps
+
+    def similar(self, app_id, results=None, detailed=False):
+        """Sends a POST request and retrieves a list of applications similar to
+        the specified app.
+
+        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param results: the number of apps to retrieve at a time.
+        :param detailed: if True, sends request per app for its full detail
+        :return: a list of similar apps
+        """
+        results = s.SIMILAR_RESULTS if results is None else results
+        url = build_url('similar', app_id)
+        data = generate_post_data(results)
+        response = send_request('POST', url, data)
         soup = BeautifulSoup(response.content, 'lxml')
 
         if detailed:

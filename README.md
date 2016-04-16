@@ -10,15 +10,20 @@ pip install -r requirements.txt
 
 ### Usage
 
-* [details](#details): Fetches the details of an application.
-* [collection](#collection): Fetches a list of applications and their details.
-* [developer](#developer): Fetches applications offered by a developer.
-* [suggestions](#suggestions): Fetches a list of query string suggestions.
-* [search](#search): Fetches applications matching a search query.
+* [details](#details): Fetch an application's details
+* [collection](#collection): Fetch a list of applications and their details.
+* [developer](#developer): Fetch a developer's offered applications.
+* [suggestions](#suggestions): Fetch a list of query string suggestions.
+* [search](#search): Fetch applications matching a search query.
+* [similar](#similar): Fetch an application'ss similar apps.
 
 #### details
 
-Fetch an application's details by its `app_id`, e.g. `com.android.chrome` for Google Chrome.
+Fetch an application's details.
+
+Options:
+
+* `app_id` the app id to get, e.g. `com.android.chrome` for Google Chrome.
 
 ```python
 >>> import play_scraper
@@ -60,15 +65,15 @@ Fetch an application's details by its `app_id`, e.g. `com.android.chrome` for Go
 
 #### collection
 
-Fetch a list of applications from a collection and an optional category.
+Fetch a list of applications from a collection, optionally filtered by category.
 
 Options:
 
 * `collection` a [collection](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L59) to fetch.
 * `category` (optional) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L3) to filter by.
-* `results` (default 60) the number of apps to fetch.
-* `page` (default 0) the page number to get. Multiplies by `results` to get the collection start index. Limit: `page * results <= 500`.
-* `detailed` (default False) if True, sends a GET request per app to fetch the full details as in [details](#details).
+* `results` (default 60, max 120) the number of apps to fetch.
+* `page` (default 0) the page number to get. Limit: `page * results <= 500`.
+* `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 
 ```python
 >>> import play_scraper
@@ -97,13 +102,13 @@ Options:
 
 #### developer
 
-Fetch a list of applications by a developer.
+Fetch a developer's offered applications.
 
 Options:
 
 * `developer` the developer name to fetch applications, e.g. `Disney`. (Case sensitive)
 * `results` (default 24) the number of apps to fetch. (Developer may have more or less published apps)
-* `detailed` (default False) if True, sends a GET request per app to fetch the full details as in [details](#details).
+* `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 
 ```python
 >>> import play_scraper
@@ -140,7 +145,13 @@ Fetch a list of autocompleted query suggestions.
 
 #### search
 
-Fetch a list of apps matching a search query.
+Fetch a list of applications matching a search query. Retrieves `20` apps at a time.
+
+Options:
+
+* `query` query term(s) to search for.
+* `page` (default 0, max 12) page number of results to retrieve.
+* `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 
 ```python
 >>> import play_scraper
@@ -165,6 +176,38 @@ Fetch a list of apps matching a search query.
     'url': 'https://play.google.com/store/apps/details?id=com.lily.times.dog1.all'}, ...]
 ```
 
+#### similar
+
+Fetch a list of similar applications.
+
+Options:
+
+* `app_id` the app id to get, e.g. `com.supercell.clashofclans` for Clash of Clans.
+* `results` (default 24, max 60) the number of apps to fetch.
+* `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
+
+```python
+>>> import play_scraper
+>>> print play_scraper.similar('com.supercell.clashofclans', results=5)
+[ { 'app_id': 'com.supercell.clashroyale',
+    'description': u'Clash Royale is a real-time, head-to-head battle game set in the Clash Universe.',
+    'developer': 'Supercell',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/K-MNjDiO2WwRNwJqPZu8Wd5eOmFEjLYkEEgjZlv35hTiua_VylRPb04Lig3YZXLERvI',
+    'price': '0',
+    'score': '4.5',
+    'title': 'Clash Royale',
+    'url': 'https://play.google.com/store/apps/details?id=com.supercell.clashroyale'},
+  { 'app_id': 'com.hcg.cok.gp',
+    'description': u'Clash of Kings - Build a Kingdom & fight in MMO combat to stand against the ages',
+    'developer': 'Elex Wireless',
+    'free': True,
+    'icon': 'https://lh5.ggpht.com/wjNgsM2TGmbxbN-jDNAUNTIIq32OSx83Tx4Vl3jOudqzUEi1yTVCcMtnoGnZGGyXRA',
+    'price': '0',
+    'score': '4.2',
+    'title': 'Clash of Kings',
+    'url': 'https://play.google.com/store/apps/details?id=com.hcg.cok.gp'}, ...]
+```
 
 ### Tests
 

@@ -9,11 +9,14 @@ USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
     'AppleWebKit/537.36 (KHTML, like Gecko) '
     'Chrome/45.0.2454.101 Safari/537.36')
 
-# Number of results to retrieve from a collection
+# Number of results to retrieve from a collection. Range(1 - 120)
 NUM_RESULTS = 60
 
 # Number of results to retrieve from a developer
 DEV_RESULTS = 24
+
+# Number of results to retrieve from similar. Range (1 - 60)
+SIMILAR_RESULTS = 24
 
 # pagTok post data strings to paginate through search results
 PAGE_TOKENS = {

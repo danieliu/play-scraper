@@ -15,7 +15,7 @@ def details(app_id):
     """Sends a GET request to the app's info page, parses the app's details, and
     returns them as a dict.
 
-    :param app: ID of an app to retrieve details from, e.g. 'com.nintendo.zaaa'
+    :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
     :return: a dictionary of app details
     """
     s = scraper.PlayScraper()
@@ -65,13 +65,26 @@ def suggestions(query):
 
 
 def search(query, **kwargs):
-    """Sends a POST request to the Play Store search and returns the results
-    in a list.
+    """Sends a POST request and retrieves a list of applications matching
+    the query term(s).
 
     :param query: search query term(s) to retrieve matching apps
     :param page: the page number to retrieve. Max is 12.
-    :param detailed: if True, sends request per app for full detail
+    :param detailed: if True, sends request per app for its full detail
     :return: a list of apps matching search terms
     """
     s = scraper.PlayScraper()
     return s.search(query, **kwargs)
+
+
+def similar(app_id, **kwargs):
+    """Sends a POST request and retrieves a list of applications similar to
+    the specified app.
+
+    :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+    :param results: the number of apps to retrieve at a time.
+    :param detailed: if True, sends request per app for its full detail
+    :return: a list of similar apps
+    """
+    s = scraper.PlayScraper()
+    return s.similar(app_id, **kwargs)
