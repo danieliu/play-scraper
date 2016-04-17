@@ -97,8 +97,8 @@ class PlayScraper(object):
                 self._base_url, c.attrs['href'])} for c in soup.select('.category')]
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
-        description = "\n".join([x.replace(u"’", u"'").encode('utf-8') for x in description_soup.stripped_strings])
-        description_html = "".join([str(x.encode('utf-8')).replace("’", "'") for x in description_soup.contents])
+        description = "\n".join(description_soup.stripped_strings)
+        description_html = unicode(description_soup)
 
         # Reviews & Ratings
         try:

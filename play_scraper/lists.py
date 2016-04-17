@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
 
+COLLECTIONS = {
+    'NEW_FREE': {'name': 'Top New Free', 'collection_id': 'topselling_new_free'},
+    'NEW_PAID': {'name': 'Top New Paid', 'collection_id': 'topselling_new_paid'},
+    'TOP_FREE': {'name': 'Top Free', 'collection_id': 'topselling_free'},
+    'TOP_PAID': {'name': 'Top Paid', 'collection_id': 'topselling_paid'},
+    'TOP_GROSSING': {'name': 'Top Grossing', 'collection_id': 'topgrossing'},
+    'TRENDING': {'name': 'Trending', 'collection_id': 'movers_shakers'},
+}
+
 CATEGORIES = {
     "ANDROID_WEAR": {"url": "/store/apps/category/ANDROID_WEAR", "category_id": "ANDROID_WEAR", "name": "Android Wear"},
     "BOOKS_AND_REFERENCE": {"url": "/store/apps/category/BOOKS_AND_REFERENCE", "category_id": "BOOKS_AND_REFERENCE", "name": "Books & Reference"},
@@ -54,13 +63,4 @@ CATEGORIES = {
     "FAMILY_EDUCATION": {"url": "/store/apps/category/FAMILY_EDUCATION", "category_id": "FAMILY_EDUCATION", "name": "Education"},
     "FAMILY_MUSICVIDEO": {"url": "/store/apps/category/FAMILY_MUSICVIDEO", "category_id": "FAMILY_MUSICVIDEO", "name": "Music & Video"},
     "FAMILY_PRETEND": {"url": "/store/apps/category/FAMILY_PRETEND", "category_id": "FAMILY_PRETEND", "name": "Pretend Play"}
-}
-
-COLLECTIONS = {
-    'NEW_FREE': {'name': 'Top New Free', 'collection_id': 'topselling_new_free'},
-    'NEW_PAID': {'name': 'Top New Paid', 'collection_id': 'topselling_new_paid'},
-    'TOP_FREE': {'name': 'Top Free', 'collection_id': 'topselling_free'},
-    'TOP_PAID': {'name': 'Top Paid', 'collection_id': 'topselling_paid'},
-    'TOP_GROSSING': {'name': 'Top Grossing', 'collection_id': 'topgrossing'},
-    'TRENDING': {'name': 'Trending', 'collection_id': 'movers_shakers'},
 }

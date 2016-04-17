@@ -35,8 +35,8 @@ Options:
     'category': [{'category_id': 'COMMUNICATION', 'name': u'Communication', 'url': 'https://play.google.com/store/apps/category/COMMUNICATION'}],
     'content_rating': u'Everyone',
     'current_version': u'Varies with device',
-    'description': 'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left ...',
-    'description_html': 'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/>',
+    'description': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left ...',
+    'description_html': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/>',
     'developer': u'Google Inc.',
     'developer_address': u'1600 Amphitheatre Parkway, Mountain View 94043',
     'developer_email': 'apps-help@google.com',
@@ -71,8 +71,8 @@ Fetch a list of applications from a collection, optionally filtered by category.
 
 Options:
 
-* `collection` a [collection](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L59) to fetch.
-* `category` (optional) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L3) to filter by.
+* `collection` a [collection](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L3) to fetch.
+* `category` (optional) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L12) to filter by.
 * `results` (default 60, max 120) the number of apps to fetch.
 * `page` (default 0) the page number to get. Limit: `page * results <= 500`.
 * `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
