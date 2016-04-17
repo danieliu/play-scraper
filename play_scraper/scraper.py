@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 import settings as s
 import logger
-from .lists import CATEGORIES, COLLECTIONS
+from .lists import CATEGORIES, COLLECTIONS, AGE_RANGE
 from .utils import (build_url, build_collection_url, send_request,
     generate_post_data, multi_app_request)
 
@@ -21,6 +21,7 @@ class PlayScraper(object):
     def __init__(self):
         self.categories = CATEGORIES
         self.collections = COLLECTIONS
+        self.age = AGE_RANGE
         self._base_url = s.BASE_URL
         self._suggestion_url = s.SUGGESTION_URL
         self._search_url = s.SEARCH_URL
@@ -90,11 +91,7 @@ class PlayScraper(object):
             video = None
 
         # Main category will be first
-        category = [{
-            'name': c.span.string,
-            'category_id': c.attrs['href'].split('/')[-1],
-            'url': urljoin(
-                self._base_url, c.attrs['href'])} for c in soup.select('.category')]
+        category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
         description = "\n".join(description_soup.stripped_strings)
@@ -246,7 +243,7 @@ class PlayScraper(object):
         soup = BeautifulSoup(response.content, 'lxml')
         return self._parse_app_details(soup)
 
-    def collection(self, collection, category=None, results=None, page=None, detailed=False):
+    def collection(self, collection, category=None, results=None, page=None, age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
@@ -254,6 +251,7 @@ class PlayScraper(object):
         :param category: (optional) the category name, e.g. 'GAME_ACTION'.
         :param results: the number of apps to retrieve at a time.
         :param page: page number to retrieve; limitation: page * results <= 500.
+        :param age: an age range to filter by (only for FAMILY categories)
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
@@ -262,9 +260,13 @@ class PlayScraper(object):
         results = s.NUM_RESULTS if results is None else results
         page = 0 if page is None else page
 
+        params = {}
+        if category.startswith('FAMILY') and age is not None:
+            params['age'] = self.age[age]
+
         url = build_collection_url(category, collection)
         data = generate_post_data(results, page)
-        response = send_request('POST', url, data)
+        response = send_request('POST', url, data, params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)

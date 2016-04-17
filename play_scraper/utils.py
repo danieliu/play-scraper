@@ -78,9 +78,9 @@ def build_collection_url(category='', collection=''):
     :return: a formatted url string.
     """
     if category:
-        category = "/category/{cat_id}".format(cat_id=category['category_id'])
+        category = "/category/{cat}".format(cat=category)
     if collection:
-        collection = "/collection/{col_id}".format(col_id=collection['collection_id'])
+        collection = "/collection/{col}".format(col=collection)
 
     url = "{base}{category}{collection}".format(
         base=s.BASE_URL,

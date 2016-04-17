@@ -17,7 +17,7 @@ python setup.py install
 * [developer](#developer): Fetch a developer's offered applications.
 * [suggestions](#suggestions): Fetch a list of query string suggestions.
 * [search](#search): Fetch applications matching a search query.
-* [similar](#similar): Fetch an application'ss similar apps.
+* [similar](#similar): Fetch an application's similar apps.
 
 #### details
 
@@ -72,10 +72,11 @@ Fetch a list of applications from a collection, optionally filtered by category.
 Options:
 
 * `collection` a [collection](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L3) to fetch.
-* `category` (optional) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L12) to filter by.
+* `category` (default None) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L12) to filter by.
 * `results` (default 60, max 120) the number of apps to fetch.
 * `page` (default 0) the page number to get. Limit: `page * results <= 500`.
-* `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
+* `age` (default None) an [age range](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L67) to filter by. (Only for FAMILY categories)
+* `detailed` (default False) if True, sends a request per app to fetch the full [details](#details).
 
 ```python
 >>> import play_scraper

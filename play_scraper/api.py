@@ -33,6 +33,7 @@ def collection(collection, category=None, **kwargs):
     :param results: the number of app results to retrieve
     :param page: the page number, calculates collection start index. is limited
         to page * results <= 500
+    :param age: an age range to filter by (only for FAMILY categories)
     :param detailed: if True, sends request per app for full detail
     :return: a list of app dictionaries
     """
