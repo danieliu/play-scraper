@@ -30,20 +30,20 @@ Options:
 ```python
 >>> import play_scraper
 >>> print play_scraper.details('com.android.chrome')
-{ 
+{
     'app_id': 'com.android.chrome',
-    'category': [{'category_id': 'COMMUNICATION', 'name': u'Communication', 'url': 'https://play.google.com/store/apps/category/COMMUNICATION'}],
+    'category': ['COMMUNICATION'],
     'content_rating': u'Everyone',
     'current_version': u'Varies with device',
-    'description': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left ...',
-    'description_html': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/>',
+    'description': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where ...',
+    'description_html': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/> ...',
     'developer': u'Google Inc.',
     'developer_address': u'1600 Amphitheatre Parkway, Mountain View 94043',
     'developer_email': 'apps-help@google.com',
     'developer_url': 'http://www.google.com/chrome/android',
     'editors_choice': False,
     'free': True,
-    'histogram': { 1: 350968, 2: 158462, 3: 326173, 4: 734343, 5: 2676192},
+    'histogram': { 1: 351453, 2: 158643, 3: 326653, 4: 735367, 5: 2679600},
     'iap': False,
     'iap_range': None,
     'icon': 'https://lh3.ggpht.com/O0aW5qsyCkR2i7Bu-jUU1b5BWA_NygJ6ui4MgaAvL7gfqvVWqkOBscDaq4pn-vkwByUx',
@@ -52,11 +52,11 @@ Options:
     'price': '0',
     'recent_changes': u'Bug fixes and speedy performance improvements.',
     'required_android_version': u'Varies with device',
-    'reviews': 4246138,
-    'score': 4.2308430671691895,
+    'reviews': 4251716,
+    'score': 4.230801582336426,
     'screenshots': [ 'https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h900-rw', ...],
     'size': u'Varies with device',
-    'thumbnails': ['https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h310-rw', ...],
+    'thumbnails': [ 'https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h310-rw', ...],
     'title': u'Chrome Browser - Google',
     'top_developer': True,
     'updated': u'March 25, 2016',
@@ -85,22 +85,24 @@ Options:
         category='GAME_RACING',
         results=5,
         page=1)
-[ { 'app_id': 'com.tinylabproductions.firefighters',
-    'description': u'Grab your favorite fire fighters ride and go for a true hero adventure!',
+[ { 'app_id': 'com.horsepower1.doorslammers2',
+    'description': u'Door Slammers 2 Online Drag Racing',
+    'developer': 'Horsepower 1 Studios',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/D3K9lGOrmBkvUyAdQSNslDE6Y_ma7CQO1YZ57kMJZ-hTIcyS_oTGEZTGOXR7JqqS6W4',
+    'icon': 'https://lh3.googleusercontent.com/zUousZ3vkqxTEyknUa2YV4KENr2UYKxN-3jQYhOgZ3qCFJL8RwYpTjyA2M4j33fQTcs',
     'price': '0',
-    'score': '3.8',
-    'title': 'Fire Fighters Racing for Kids',
-    'url': 'https://play.google.com/store/apps/details?id=com.tinylabproductions.firefighters'},
-  { 'app_id': 'com.labexception.truckdrivercargo',
-    'description': u'Drive trucks through dangerous roads and deliver cargo',
+    'score': '4.7',
+    'title': 'Door Slammers',
+    'url': 'https://play.google.com/store/apps/details?id=com.horsepower1.doorslammers2'},
+  { 'app_id': 'com.craneballs.artdrive',
+    'description': u'Paint the world a better place, one neighborhood at a time.',
+    'developer': 'Craneballs',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/_N_baVt-zIlPvuJEFvo3Bn3ywhDl_kNzH89VU2tbrHtbyDW2dt-gb5sXugdMML9fKA',
+    'icon': 'https://lh3.googleusercontent.com/bMI0BCxhJIr-5KZfHG9Nwt7ikFvfW5chJaWzks_WIgod9loaWzpjKk98qpqlYIujUs4',
     'price': '0',
-    'score': '3.9',
-    'title': 'Truck Driver Cargo',
-    'url': 'https://play.google.com/store/apps/details?id=com.labexception.truckdrivercargo'}, ...]
+    'score': '4.1',
+    'title': 'Splash Cars',
+    'url': 'https://play.google.com/store/apps/details?id=com.craneballs.artdrive'}, ...]
 ```
 
 #### developer
@@ -159,16 +161,7 @@ Options:
 ```python
 >>> import play_scraper
 >>> print play_scraper.search('dogs', page=2)
-[ { 'app_id': 'org.hanoo.dogtraining',
-    'description': u'Please prefer downloading the new version: DogTraining2',
-    'developer': 'hanoo.org',
-    'free': True,
-    'icon': 'https://lh3.googleusercontent.com/mzTl58Q8aWRSBGejWvoqm-UoPvxVV5tOevt8Rp4pZUKe2b1hKykeT4EMo4-2ngcSzF2Q',
-    'price': '0',
-    'score': '3.3',
-    'title': 'Dog Training',
-    'url': 'https://play.google.com/store/apps/details?id=org.hanoo.dogtraining'},
-  { 'app_id': 'com.lily.times.dog1.all',
+[ { 'app_id': 'com.lily.times.dog1.all',
     'description': u'Talking Puppy repeats everything you say with a funny voice.',
     'developer': 'Talking Baby',
     'free': True,
@@ -176,7 +169,16 @@ Options:
     'price': '0',
     'score': '4.4',
     'title': 'Talking Puppy',
-    'url': 'https://play.google.com/store/apps/details?id=com.lily.times.dog1.all'}, ...]
+    'url': 'https://play.google.com/store/apps/details?id=com.lily.times.dog1.all'},
+  { 'app_id': 'org.hanoo.dogtraining',
+    'description': u'Please prefer downloading the new version: DogTraining2',
+    'developer': 'hanoo.org',
+    'free': True,
+    'icon': 'https://lh3.googleusercontent.com/mzTl58Q8aWRSBGejWvoqm-UoPvxVV5tOevt8Rp4pZUKe2b1hKykeT4EMo4-2ngcSzF2Q',
+    'price': '0',
+    'score': '3.3',
+    'title': 'Dog Training',
+    'url': 'https://play.google.com/store/apps/details?id=org.hanoo.dogtraining'}, ...]
 ```
 
 #### similar
