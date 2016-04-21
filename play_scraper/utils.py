@@ -2,8 +2,9 @@
 
 try:
     from urllib import quote_plus
+    from urlparse import urljoin
 except ImportError:
-    from urllib.parse import quote_plus
+    from urllib.parse import urljoin, quote_plus
 
 import requests
 import grequests
@@ -170,7 +171,7 @@ def get_categories():
     age = '?age='
 
     for cat in category_links:
-        url = cat.attrs['href']
+        url = urljoin(s.BASE_URL, cat.attrs['href'])
         category_id = url.split('/')[-1]
         name = cat.string
 
