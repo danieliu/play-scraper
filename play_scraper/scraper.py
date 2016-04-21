@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import json
-import urllib
 try:
+    from urllib import quote_plus
     from urlparse import urljoin
 except ImportError:
-    from urllib.parse import urljoin
+    from urllib.parse import urljoin, quote_plus
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
-import settings as s
-import logger
+from . import settings as s
+from . import logger
 from .lists import CATEGORIES, COLLECTIONS, AGE_RANGE
 from .utils import (build_url, build_collection_url, send_request,
     generate_post_data, multi_app_request)
@@ -42,7 +42,12 @@ class PlayScraper(object):
             self._base_url,
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
         title = soup.select_one('a.title').attrs['title']
-        developer = soup.select_one('a.subtitle').attrs['title']
+
+        dev = soup.select_one('a.subtitle')
+        developer = dev.attrs['title']
+        dev_id = dev.attrs['href'].split('=')[1]
+        developer_id = dev_id if dev_id.isdigit() else None
+
         description = soup.select_one('div.description').text.strip()
         score = soup.select_one('div.tiny-star')
         if score is not None:
@@ -58,6 +63,7 @@ class PlayScraper(object):
             'icon': icon,
             'title': title,
             'developer': developer,
+            'developer_id': developer_id,
             'description': description,
             'score': score,
             'price': price,
@@ -112,7 +118,7 @@ class PlayScraper(object):
             for i in range(5):
                 histogram[5 - i] = ratings[i]
         except AttributeError:
-            reviews = None
+            reviews = 0
             pass
 
         recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
@@ -161,6 +167,8 @@ class PlayScraper(object):
                 pass
 
         developer = soup.select_one('span[itemprop="name"]').string
+        dev_id = soup.select_one('a.document-subtitle.primary').attrs['href'].split('=')[1]
+        developer_id = dev_id if dev_id.isdigit() else None
         developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
         developer_url = additional_info.select_one('a[href^="https://www.google.com"]')
         if developer_url:
@@ -198,6 +206,7 @@ class PlayScraper(object):
             'iap': offers_iap,
             'iap_range': iap_range,
             'developer': developer,
+            'developer_id': developer_id,
             'developer_email': developer_email,
             'developer_url': developer_url,
             'developer_address': developer_address
@@ -334,7 +343,7 @@ class PlayScraper(object):
         data = generate_post_data(0, 0, pagtok)
 
         params = {
-            'q': urllib.quote_plus(query),
+            'q': quote_plus(query),
             'c': 'apps'
         }
 

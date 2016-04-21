@@ -20,16 +20,10 @@ DEFAULT_LOGGER = {
             'level': 'INFO',
             'formatter': 'simple',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'level': 'WARNING',
-            'filename': 'play-scraper.log',
-            'formatter': 'default',
-        },
     },
     'loggers': {
         __name__: {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         }

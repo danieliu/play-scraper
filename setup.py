@@ -1,4 +1,5 @@
 import re
+from codecs import open
 from setuptools import setup
 
 
@@ -6,7 +7,7 @@ with open('play_scraper/__init__.py', 'r') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         f.read(), re.MULTILINE).group(1)
 
-with open('README.md', 'r', 'utf-8') as f:
+with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
 
 setup(

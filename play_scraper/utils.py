@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import urllib
+try:
+    from urllib import quote_plus
+except ImportError:
+    from urllib.parse import quote_plus
 
 import requests
 import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
-import settings as s
-import logger
+from . import settings as s
+from . import logger
 
 log = logger.configure_logging()
 
@@ -63,7 +66,7 @@ def build_url(method, id_string):
     :return: a URL string.
     """
     if method == 'developer':
-        id_string = urllib.quote_plus(id_string)
+        id_string = quote_plus(id_string)
 
     url = "{base}/{method}?id={id}".format(
         base=s.BASE_URL, method=method, id=id_string)
