@@ -167,12 +167,22 @@ def get_categories():
     soup = BeautifulSoup(response.content, 'lxml', parse_only=strainer)
     category_links = soup.select('a.child-submenu-link')
 
+    age = '?age='
+
     for cat in category_links:
         url = cat.attrs['href']
         category_id = url.split('/')[-1]
-        categories[category_id] = {
-            'name': cat.string,
-            'url': url,
-            'category_id': category_id}
+        name = cat.string
+
+        if age in category_id:
+            category_id = 'FAMILY'
+            url = url.split('?')[0]
+            name = 'Family'
+
+        if category_id not in categories:
+            categories[category_id] = {
+                'name': name,
+                'url': url,
+                'category_id': category_id}
 
     return categories
