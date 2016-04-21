@@ -6,6 +6,7 @@
 * Python3 import fixes
 * No reviews (ratings) set to 0 instead of None
 * Developer ID included when available
+* Removed file logging
 
 ### 0.1.2: 2016-04-17
 
