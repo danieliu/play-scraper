@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.1.4: 2016-04-21
+
+* Added number of results and page number limit checks
+* App ID raises exception when 404
+
 ### 0.1.3: 2016-04-20
 
 * Python3 urllib.parse.quote_plus compatibility in scraper/utils

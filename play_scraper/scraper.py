@@ -248,8 +248,14 @@ class PlayScraper(object):
         :return: a dictionary of app details
         """
         url = build_url('details', app_id)
-        response = send_request('GET', url)
-        soup = BeautifulSoup(response.content, 'lxml')
+
+        try:
+            response = send_request('GET', url)
+            soup = BeautifulSoup(response.content, 'lxml')
+        except requests.exceptions.HTTPError as e:
+            raise ValueError('Invalid application ID: {app}. {error}'.format(
+                app=app_id, error=e))
+
         return self._parse_app_details(soup)
 
     def collection(self, collection, category=None, results=None, page=None, age=None, detailed=False):
@@ -266,8 +272,14 @@ class PlayScraper(object):
         """
         collection = self.collections[collection]
         category = '' if category is None else self.categories[category]
+
         results = s.NUM_RESULTS if results is None else results
+        if results > 120:
+            raise ValueError('Number of results cannot be more than 120.')
+
         page = 0 if page is None else page
+        if page * results > 500:
+            raise ValueError('Start (page * results) cannot be greater than 500.')
 
         params = {}
         if category.startswith('FAMILY') and age is not None:
@@ -339,6 +351,9 @@ class PlayScraper(object):
         :return: a list of apps matching search terms
         """
         page = 0 if page is None else page
+        if page > len(s._pagtok - 1):
+            raise ValueError('Page must be between 0 and 12')
+
         pagtok = self._pagtok[page]
         data = generate_post_data(0, 0, pagtok)
 
@@ -367,6 +382,9 @@ class PlayScraper(object):
         :return: a list of similar apps
         """
         results = s.SIMILAR_RESULTS if results is None else results
+        if results > 60:
+            raise ValueError('Number of results cannot be more than 120.')
+
         url = build_url('similar', app_id)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
