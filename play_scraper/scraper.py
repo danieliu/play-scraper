@@ -77,7 +77,7 @@ class PlayScraper(object):
         :return: a dictionary of app details
         """
         app_id = soup.select_one('span.play-button').attrs['data-docid']
-        url = soup.select_one('meta[itemprop="url"]').attrs['content']
+        url = soup.select_one('span[itemprop="offers"] meta[itemprop="url"]').attrs['content'].split('&')[0]
         title = soup.select_one('div.id-app-title').string
         icon = urljoin(
             self._base_url,
@@ -95,6 +95,7 @@ class PlayScraper(object):
                 video = video.split('?')[0]
         except AttributeError:
             video = None
+            pass
 
         # Main category will be first
         category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
@@ -161,14 +162,16 @@ class PlayScraper(object):
         if offers_iap:
             try:
                 iap_price_index = meta_info_titles.index('In-app Products')
-                iap_range = meta_info[iap_price_index].string
+                iap_range = meta_info[iap_price_index].next_sibling.next_sibling.string
             except ValueError:
                 iap_range = 'Not Available'
                 pass
 
         developer = soup.select_one('span[itemprop="name"]').string
+
         dev_id = soup.select_one('a.document-subtitle.primary').attrs['href'].split('=')[1]
         developer_id = dev_id if dev_id.isdigit() else None
+
         developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
         developer_url = additional_info.select_one('a[href^="https://www.google.com"]')
         if developer_url:
