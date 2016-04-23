@@ -3,6 +3,7 @@
 ### 0.1.5: 2016-04-22
 
 * Fixed App detail URL and IAP range parsing with a proper selector and correctly traversing to the next next sibling, respectively
+* Fixed error when developer email not available
 
 ### 0.1.4: 2016-04-21
 

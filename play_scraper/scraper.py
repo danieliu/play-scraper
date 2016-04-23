@@ -172,7 +172,10 @@ class PlayScraper(object):
         dev_id = soup.select_one('a.document-subtitle.primary').attrs['href'].split('=')[1]
         developer_id = dev_id if dev_id.isdigit() else None
 
-        developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
+        try:
+            developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
+        except AttributeError:
+            developer_email = None
         developer_url = additional_info.select_one('a[href^="https://www.google.com"]')
         if developer_url:
             developer_url = developer_url.attrs['href'].split("&")[0].split("=")[1]
