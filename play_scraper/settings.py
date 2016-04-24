@@ -34,3 +34,6 @@ PAGE_TOKENS = {
     11: 'GAEiAwjcAQ==:S:ANO1ljJ9Wk0',
     12: 'GAEiAwjwAQ==:S:ANO1ljLFcVI',
 }
+
+# Regex to find page tokens within scrip tags
+TOKEN_RE = r'GAEiA[\w=]{3,7}:S:ANO1lj[\w]{5}'

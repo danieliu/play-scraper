@@ -320,18 +320,25 @@ class PlayScraper(object):
 
         return apps
 
-    def developer(self, developer, results=None, detailed=False):
+    def developer(self, developer, results=None, page=None, detailed=False):
         """Sends a POST request and retrieves a list of the developer's published
         applications on the Play Store.
 
         :param developer: developer name to retrieve apps from, e.g. 'Disney'
         :param results: the number of app results to retrieve
+        :param page: the page number to retrieve
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
         results = s.DEV_RESULTS if results is None else results
+        page = 0 if page is None else page
+        page_num = (results // 20) * page
+        if not 0 < page_num <= 12:
+            raise ValueError('Page out of range. (results // 20) * page must be between 0 - 12')
+        pagtok = self._pagtok[page_num]
+
         url = build_url('developer', developer)
-        data = generate_post_data(results)
+        data = generate_post_data(results, 0, pagtok)
         response = send_request('POST', url, data)
         soup = BeautifulSoup(response.content, 'lxml')
 
@@ -375,7 +382,7 @@ class PlayScraper(object):
         """
         page = 0 if page is None else page
         if page > len(self._pagtok) - 1:
-            raise ValueError('Page must be between 0 and 12')
+            raise ValueError('Page out of range. Please choose a number between 0 - 12')
 
         pagtok = self._pagtok[page]
         data = generate_post_data(0, 0, pagtok)

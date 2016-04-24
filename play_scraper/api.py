@@ -47,6 +47,7 @@ def developer(developer, **kwargs):
 
     :param developer: developer name to retrieve apps from, e.g. 'Disney'
     :param results: the number of app results to retrieve
+    :param page: the page number to retrieve
     :param detailed: if True, sends request per app for full detail
     :return: a list of app dictionaries
     """
@@ -70,7 +71,7 @@ def search(query, **kwargs):
     the query term(s).
 
     :param query: search query term(s) to retrieve matching apps
-    :param page: the page number to retrieve. Max is 12.
+    :param page: the page number to retrieve; max is 12
     :param detailed: if True, sends request per app for its full detail
     :return: a list of apps matching search terms
     """

@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.1.7: 2016-04-24
+
+* Pagination for developer method, using page tokens
+* Added page token regex to settings for parsing out of response html script tags
+
 ### 0.1.6: 2016-04-23
 
 * Added handling of 'pre-register' apps with more generalized selectors in basic card info and detailed parsing
