@@ -52,7 +52,12 @@ class PlayScraper(object):
         score = soup.select_one('div.tiny-star')
         if score is not None:
             score = score.attrs['aria-label'].strip().split(' ')[1]
-        price = soup.select_one('span.display-price').string
+
+        try:
+            price = soup.select_one('span.display-price').string
+        except AttributeError:
+            price = soup.select_one('.price').string
+
         free = (price == 'Free')
         if free is True:
             price = '0'
@@ -76,8 +81,8 @@ class PlayScraper(object):
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app details
         """
-        app_id = soup.select_one('span.play-button').attrs['data-docid']
-        url = soup.select_one('span[itemprop="offers"] meta[itemprop="url"]').attrs['content'].split('&')[0]
+        app_id = soup.select_one('div[data-uitype=209]').attrs['data-docid']
+        url = build_url('details', app_id)
         title = soup.select_one('div.id-app-title').string
         icon = urljoin(
             self._base_url,
@@ -125,12 +130,19 @@ class PlayScraper(object):
         recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
         editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
-        price = soup.select_one('meta[itemprop="price"]').attrs['content']
+        try:
+            price = soup.select_one('meta[itemprop="price"]').attrs['content']
+        except AttributeError:
+            price = '0'
+
         free = (price == '0')
 
         # Additional information section
         additional_info = soup.select_one('div.metadata div.details-section-contents')
-        updated = additional_info.select_one('div[itemprop="datePublished"]').string
+        updated = additional_info.select_one('div[itemprop="datePublished"]')
+        if updated:
+            updated = updated.string
+
         size = additional_info.select_one('div[itemprop="fileSize"]')
         if size:
             size = size.string.strip()
@@ -145,8 +157,13 @@ class PlayScraper(object):
         if current_version:
             current_version = current_version.string.strip()
 
-        required_android_version = additional_info.select_one('div[itemprop="operatingSystems"]').string.strip()
-        content_rating = additional_info.select_one('div[itemprop="contentRating"]').string
+        required_android_version = additional_info.select_one('div[itemprop="operatingSystems"]')
+        if required_android_version:
+            required_android_version = required_android_version.string.strip()
+
+        content_rating = additional_info.select_one('div[itemprop="contentRating"]')
+        if content_rating:
+            content_rating = content_rating.string
 
         meta_info = additional_info.select('.title')
         meta_info_titles = [x.string.strip() for x in meta_info]
@@ -357,7 +374,7 @@ class PlayScraper(object):
         :return: a list of apps matching search terms
         """
         page = 0 if page is None else page
-        if page > len(s._pagtok - 1):
+        if page > len(self._pagtok) - 1:
             raise ValueError('Page must be between 0 and 12')
 
         pagtok = self._pagtok[page]
