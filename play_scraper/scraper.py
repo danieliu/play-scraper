@@ -333,7 +333,7 @@ class PlayScraper(object):
         results = s.DEV_RESULTS if results is None else results
         page = 0 if page is None else page
         page_num = (results // 20) * page
-        if not 0 < page_num <= 12:
+        if not 0 <= page_num <= 12:
             raise ValueError('Page out of range. (results // 20) * page must be between 0 - 12')
         pagtok = self._pagtok[page_num]
 
