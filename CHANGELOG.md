@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.8: 2016-04-24
+
+* Removed logging configs and replaced with nullhandler
+
 ### 0.1.7: 2016-04-24
 
 * Pagination for developer method, using page tokens

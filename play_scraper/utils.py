@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -11,9 +12,8 @@ import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
 from . import settings as s
-from . import logger
 
-log = logger.configure_logging()
+log = logging.getLogger(__name__)
 
 
 def _handle_grequest_exception(request, exception):

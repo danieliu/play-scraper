@@ -89,7 +89,7 @@ Options:
    `category <https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L12>`__
    to filter by.
 -  ``results`` (default 60, max 120) the number of apps to fetch.
--  ``page`` (default 0) the page number to get. Limit:
+-  ``page`` (default 0) the page number to fetch. Limit:
    ``page * results <= 500``.
 -  ``age`` (default None) an `age
    range <https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L67>`__
@@ -135,8 +135,10 @@ Options:
 
 -  ``developer`` the developer name to fetch applications, e.g.
    ``Disney``. (Case sensitive)
--  ``results`` (default 24) the number of apps to fetch. (Developer may
-   have more or less published apps)
+-  ``results`` (default 24, max 120) the number of apps to fetch.
+   (Developer may have more or less published apps)
+-  ``page`` (default 0) the page number to fetch. Limit:
+   ``0 < (results // 20) * page < 12``
 -  ``detailed`` (default False) if True, sends a request per app to
    fetch the full details as in `details <#details>`__.
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -11,7 +12,6 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
 from . import settings as s
-from . import logger
 from .lists import CATEGORIES, COLLECTIONS, AGE_RANGE
 from .utils import (build_url, build_collection_url, send_request,
     generate_post_data, multi_app_request)
@@ -26,7 +26,7 @@ class PlayScraper(object):
         self._suggestion_url = s.SUGGESTION_URL
         self._search_url = s.SEARCH_URL
         self._pagtok = s.PAGE_TOKENS
-        self._log = logger.configure_logging()
+        self._log = logging.getLogger(__name__)
 
     def _parse_card_info(self, soup):
         """Extracts basic app info from the app's card. Used when parsing pages
