@@ -53,10 +53,16 @@ class PlayScraper(object):
         if score is not None:
             score = score.attrs['aria-label'].strip().split(' ')[1]
 
+        # Most apps will have 'Free' or their price
         try:
             price = soup.select_one('span.display-price').string
         except AttributeError:
-            price = soup.select_one('.price').string
+            try:
+                # Pre-register apps 'Coming Soon'
+                price = soup.select_one('.price').string
+            except AttributeError:
+                # Country restricted, no price or buttons shown
+                price = 'Not Available'
 
         free = (price == 'Free')
         if free is True:
@@ -137,7 +143,10 @@ class PlayScraper(object):
         try:
             price = soup.select_one('meta[itemprop="price"]').attrs['content']
         except AttributeError:
-            price = '0'
+            try:
+                price = soup.select_one('div.preregistration-text-add').string.strip()
+            except AttributeError:
+                price = 'Not Available'
 
         free = (price == '0')
 
@@ -416,8 +425,6 @@ class PlayScraper(object):
         :return: a list of similar apps
         """
         results = s.SIMILAR_RESULTS if results is None else results
-        if results > 60:
-            raise ValueError('Number of results cannot be more than 120.')
 
         url = build_url('similar', app_id)
         data = generate_post_data(results)
