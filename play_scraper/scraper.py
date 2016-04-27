@@ -110,8 +110,8 @@ class PlayScraper(object):
             description = "\n".join(description_soup.stripped_strings)
             description_html = description_soup.encode_contents().decode('utf-8')
         else:
-            description = unicode('', 'utf-8')
-            description_html = unicode('', 'utf-8')
+            description = ''
+            description_html = ''
 
         # Reviews & Ratings
         try:
