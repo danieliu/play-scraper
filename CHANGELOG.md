@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.9: 2016-04-26
+
+* No description/description_html error handling, e.g. with app 'kumagames.onikuma' in detailed scrape
+
 ### 0.1.8: 2016-04-24
 
 * Removed logging configs and replaced with nullhandler

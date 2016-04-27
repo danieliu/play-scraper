@@ -106,8 +106,12 @@ class PlayScraper(object):
         category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
-        description = "\n".join(description_soup.stripped_strings)
-        description_html = description_soup.encode_contents().decode('utf-8')
+        if description_soup:
+            description = "\n".join(description_soup.stripped_strings)
+            description_html = description_soup.encode_contents().decode('utf-8')
+        else:
+            description = unicode('', 'utf-8')
+            description_html = unicode('', 'utf-8')
 
         # Reviews & Ratings
         try:
