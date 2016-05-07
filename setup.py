@@ -22,8 +22,12 @@ setup(
     license='MIT License',
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
     ],
     install_requires=[
         'beautifulsoup4>=4.4.1',

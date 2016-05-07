@@ -10,8 +10,7 @@ Either install requirements in a virtualenv or run the setup.
 
 ::
 
-    pip install -r requirements.txt
-    python setup.py install
+    pip install play-scraper
 
 Usage
 -----

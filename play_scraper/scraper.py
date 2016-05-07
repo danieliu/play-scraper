@@ -168,7 +168,10 @@ class PlayScraper(object):
 
         current_version = additional_info.select_one('div[itemprop="softwareVersion"]')
         if current_version:
-            current_version = current_version.string.strip()
+            try:
+                current_version = current_version.string.strip()
+            except AttributeError:
+                current_version = current_version.span.string.strip()
 
         required_android_version = additional_info.select_one('div[itemprop="operatingSystems"]')
         if required_android_version:

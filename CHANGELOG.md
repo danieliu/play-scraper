@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.11: 2016-05-06
+
+* Arabic in Current Version metadata fix
+
 ### 0.1.10: 2016-04-27
 
 * Price not availble (due to country restrictions?) and better handling with pre-register apps
