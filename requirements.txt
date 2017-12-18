@@ -2,5 +2,5 @@ beautifulsoup4==4.4.1
 gevent==1.1.1
 greenlet==0.4.9
 grequests==0.3.0
-lxml==3.6.0
+html5lib=1.0.1
 requests==2.9.1

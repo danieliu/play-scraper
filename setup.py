@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'beautifulsoup4>=4.4.1',
         'grequests>=0.3.0',
-        'lxml>=3.6.0',
         'requests>=2.9.1',
+        'html5lib>=1.0.1'
     ],
 )
