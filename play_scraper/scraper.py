@@ -259,7 +259,7 @@ class PlayScraper(object):
         :return: a list of app dictionaries
         """
         list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
-        soup = BeautifulSoup(list_response.content, 'lxml', parse_only=list_strainer)
+        soup = BeautifulSoup(list_response.content, 'html5lib', parse_only=list_strainer)
 
         app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
         responses = multi_app_request(app_ids)
@@ -269,7 +269,7 @@ class PlayScraper(object):
         errors = []
         for i, r in enumerate(responses):
             if r is not None and r.status_code == requests.codes.ok:
-                soup = BeautifulSoup(r.content, 'lxml', parse_only=app_strainer)
+                soup = BeautifulSoup(r.content, 'html5lib', parse_only=app_strainer)
                 apps.append(self._parse_app_details(soup))
             else:
                 errors.append(app_ids[i])
@@ -290,7 +290,7 @@ class PlayScraper(object):
 
         try:
             response = send_request('GET', url)
-            soup = BeautifulSoup(response.content, 'lxml')
+            soup = BeautifulSoup(response.content, 'html5lib')
         except requests.exceptions.HTTPError as e:
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
@@ -331,7 +331,7 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            soup = BeautifulSoup(response.content, 'lxml')
+            soup = BeautifulSoup(response.content, 'html5lib')
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
         return apps
@@ -356,7 +356,7 @@ class PlayScraper(object):
         url = build_url('developer', developer)
         data = generate_post_data(results, 0, pagtok)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -409,7 +409,7 @@ class PlayScraper(object):
         }
 
         response = send_request('POST', self._search_url, data, params)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -432,7 +432,7 @@ class PlayScraper(object):
         url = build_url('similar', app_id)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)

@@ -165,7 +165,7 @@ def get_categories():
     strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
 
     response = send_request('GET', s.BASE_URL)
-    soup = BeautifulSoup(response.content, 'lxml', parse_only=strainer)
+    soup = BeautifulSoup(response.content, 'html5lib', parse_only=strainer)
     category_links = soup.select('a.child-submenu-link')
 
     age = '?age='
