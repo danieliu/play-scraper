@@ -191,7 +191,7 @@ class PlayScraper(object):
 #             interactive_elements = []
 #             pass
 
-        offers_iap = bool(re.search('purchases', soup.select_one('div.rxic6').get_text()))
+        offers_iap = bool(re.search('purchases', str(soup.select_one('div.rxic6'))))
         iap_range = None
         if offers_iap:
             try:
@@ -387,7 +387,7 @@ class PlayScraper(object):
         }
 
         response = send_request('GET', self._suggestion_url, params=params)
-        suggestions = [q['s'] for q in json.loads(response.content.decode('utf-8')]
+        suggestions = [q['s'] for q in json.loads(response.content.decode('utf-8'))]
         return suggestions
 
     def search(self, query, page=None, detailed=False):
