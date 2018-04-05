@@ -262,7 +262,7 @@ class PlayScraper(object):
         :return: a list of app dictionaries
         """
         list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
-        soup = BeautifulSoup(list_response.content, 'html5lib', parse_only=list_strainer)
+        soup = BeautifulSoup(list_response.content.decode('utf-8'), 'html5lib', parse_only=list_strainer)
 
         app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
         responses = multi_app_request(app_ids)
@@ -293,7 +293,7 @@ class PlayScraper(object):
 
         try:
             response = send_request('GET', url)
-            soup = BeautifulSoup(response.content, 'html5lib')
+            soup = BeautifulSoup(response.content.decode('utf-8'), 'html5lib')
         except requests.exceptions.HTTPError as e:
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
@@ -334,7 +334,7 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            soup = BeautifulSoup(response.content, 'html5lib')
+            soup = BeautifulSoup(response.content.decode('utf-8'), 'html5lib')
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
         return apps
@@ -359,7 +359,7 @@ class PlayScraper(object):
         url = build_url('developer', developer)
         data = generate_post_data(results, 0, pagtok)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'html5lib')
+        soup = BeautifulSoup(response.content.decode('utf-8'), 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -387,7 +387,7 @@ class PlayScraper(object):
         }
 
         response = send_request('GET', self._suggestion_url, params=params)
-        suggestions = [q['s'] for q in json.loads(response.content)]
+        suggestions = [q['s'] for q in json.loads(response.content.decode('utf-8')]
         return suggestions
 
     def search(self, query, page=None, detailed=False):
@@ -412,7 +412,7 @@ class PlayScraper(object):
         }
 
         response = send_request('POST', self._search_url, data, params)
-        soup = BeautifulSoup(response.content, 'html5lib')
+        soup = BeautifulSoup(response.content.decode('utf-8'), 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -435,7 +435,7 @@ class PlayScraper(object):
         url = build_url('similar', app_id)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'html5lib')
+        soup = BeautifulSoup(response.content.decode('utf-8'), 'html5lib')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
