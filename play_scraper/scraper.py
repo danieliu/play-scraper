@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -87,18 +88,18 @@ class PlayScraper(object):
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app details
         """
-        app_id = soup.select_one('div[data-uitype=209]').attrs['data-docid']
+        app_id = soup.select_one('link[rel=canonical]').attrs['href'].split('id=')[1]
         url = build_url('details', app_id)
-        title = soup.select_one('div.id-app-title').string
+        title = soup.select_one('h1[itemprop=name] span').string
         icon = urljoin(
             self._base_url,
-            soup.select_one('img.cover-image').attrs['src'].split('=')[0])
+            soup.select_one('img.T75of').attrs['src'].split('=')[0])
         screenshots = [urljoin(
             self._base_url,
-            img.attrs['src']) for img in soup.select('img.full-screenshot')]
+            re.sub(r'([^\s]+)\s.*', r'\1', img.attrs['srcset'])) for img in soup.select('[data-screenshot-item-index] img')]
         thumbnails = [urljoin(
             self._base_url,
-            img.attrs['src']) for img in soup.select('img.screenshot')]
+            img.attrs['src']) for img in soup.select('[data-screenshot-item-index] img')]
 
         try:
             video = soup.select_one('span.preview-overlay-container').attrs.get('data-video-url', None)
@@ -109,9 +110,9 @@ class PlayScraper(object):
             pass
 
         # Main category will be first
-        category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
+        category = [c.attrs['href'].split('/')[-1] for c in soup.select('[itemprop=genre]')]
 
-        description_soup = soup.select_one('div.show-more-content.text-body div')
+        description_soup = soup.select_one('[itemprop=description] content div')
         if description_soup:
             description = "\n".join(description_soup.stripped_strings)
             description_html = description_soup.encode_contents().decode('utf-8')
@@ -128,16 +129,16 @@ class PlayScraper(object):
 
         histogram = {}
         try:
-            reviews = int(soup.select_one('meta[itemprop="ratingCount"]').attrs['content'])
-            ratings_section = soup.select_one('div.rating-histogram')
-            ratings = [int(r.string.replace(',', '')) for r in ratings_section.select('span.bar-number')]
+            reviews = int(soup.select_one('span.EymY4b').findChildren()[1].string.replace(',', ''))
+            ratings_section = soup.select_one('div.VEF2C')
+            ratings = [int(r.string.replace(',', '')) for r in ratings_section.select('div.mMF0fd span.UfW5d')]
             for i in range(5):
                 histogram[5 - i] = ratings[i]
         except AttributeError:
             reviews = 0
             pass
 
-        recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
+        recent_changes = "\n".join(soup.select('[itemprop=description] content')[1].stripped_strings)
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
         editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
         try:
@@ -151,70 +152,73 @@ class PlayScraper(object):
         free = (price == '0')
 
         # Additional information section
-        additional_info = soup.select_one('div.metadata div.details-section-contents')
-        updated = additional_info.select_one('div[itemprop="datePublished"]')
-        if updated:
-            updated = updated.string
 
-        size = additional_info.select_one('div[itemprop="fileSize"]')
-        if size:
-            size = size.string.strip()
+        additional_info = soup.select('.htlgb')
+        if len(additional_info) > 0:
+            updated = additional_info[0]
+            if updated:
+                updated = updated.string
 
-        try:
-            installs = [int(n.replace(',', '')) for n in additional_info.select_one(
-                'div[itemprop="numDownloads"]').string.strip().split(" - ")]
-        except AttributeError:
-            installs = [0, 0]
+            size = additional_info[1]
+            if size:
+                size = size.string.strip()
 
-        current_version = additional_info.select_one('div[itemprop="softwareVersion"]')
-        if current_version:
+            try:
+                installs = [int(n.replace(',', '').replace('+', '')) for n in additional_info[2].string.strip().split(" - ")]
+            except AttributeError:
+                installs = [0, 0]
+
+            current_version = additional_info[3]
             try:
                 current_version = current_version.string.strip()
             except AttributeError:
                 current_version = current_version.span.string.strip()
 
-        required_android_version = additional_info.select_one('div[itemprop="operatingSystems"]')
-        if required_android_version:
-            required_android_version = required_android_version.string.strip()
+            required_android_version = additional_info[4]
+            if required_android_version:
+                required_android_version = required_android_version.string.strip()
 
-        content_rating = additional_info.select_one('div[itemprop="contentRating"]')
-        if content_rating:
-            content_rating = content_rating.string
+            content_rating = additional_info[5]
+            if content_rating:
+                content_rating = content_rating.findChildren()[0].string
 
-        meta_info = additional_info.select('.title')
-        meta_info_titles = [x.string.strip() for x in meta_info]
-        try:
-            i_elements_index = meta_info_titles.index('Interactive Elements')
-            interactive_elements = meta_info[i_elements_index].next_sibling.next_sibling.string.split(', ')
-        except ValueError:
-            interactive_elements = []
-            pass
+#         meta_info = additional_info.select('.title')
+#         meta_info_titles = [x.string.strip() for x in meta_info]
+#         try:
+#             i_elements_index = meta_info_titles.index('Interactive Elements')
+#             interactive_elements = meta_info[i_elements_index].next_sibling.next_sibling.string.split(', ')
+#         except ValueError:
+#             interactive_elements = []
+#             pass
 
-        offers_iap = bool(soup.select_one('div.inapp-msg'))
+        offers_iap = bool(re.search('purchases', soup.select_one('div.rxic6').get_text()))
         iap_range = None
         if offers_iap:
             try:
-                iap_price_index = meta_info_titles.index('In-app Products')
-                iap_range = meta_info[iap_price_index].next_sibling.next_sibling.string
+                iap_range = additional_info[6]
+                if iap_range and re.search('per item', iap_range.string):
+                    iap_range = iap_range.string.strip()
             except ValueError:
                 iap_range = 'Not Available'
                 pass
 
-        developer = soup.select_one('span[itemprop="name"]').string
+        developer_el = soup.select_one('a.hrTbp.R8zArc')
+        developer = developer_el.string
 
-        dev_id = soup.select_one('a.document-subtitle.primary').attrs['href'].split('=')[1]
+        dev_id = developer_el.attrs['href'].split('=')[1]
         developer_id = dev_id if dev_id.isdigit() else None
 
         try:
-            developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
+            developer_email = soup.select_one('.htlgb a[href^="mailto"]').attrs['href'].split(":")[1]
         except AttributeError:
             developer_email = None
-        developer_url = additional_info.select_one('a[href^="https://www.google.com"]')
+        developer_url = soup.find('a', {'class': 'hrTbp'}, text='Visit website')
         if developer_url:
-            developer_url = developer_url.attrs['href'].split("&")[0].split("=")[1]
-        developer_address = additional_info.select_one('.physical-address')
-        if developer_address:
-            developer_address = developer_address.string
+            developer_url = developer_url['href']
+        try:
+            developer_address = soup.select_one('.htlgb a[href^="mailto"]').parent.parent.findChildren()[-1].string
+        except Exception:
+            developer_email = 'Not Available'
 
         return {
             'app_id': app_id,
@@ -241,7 +245,6 @@ class PlayScraper(object):
             'current_version': current_version,
             'required_android_version': required_android_version,
             'content_rating': content_rating,
-            'interactive_elements': interactive_elements,
             'iap': offers_iap,
             'iap_range': iap_range,
             'developer': developer,
