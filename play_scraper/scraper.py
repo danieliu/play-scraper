@@ -153,32 +153,32 @@ class PlayScraper(object):
 
         # Additional information section
 
-        additional_info = soup.select('.htlgb')
+        additional_info = self._parse_additional_info(soup)
         if len(additional_info) > 0:
-            updated = additional_info[0]
+            updated = additional_info.get('updated')
             if updated:
                 updated = updated.string
 
-            size = additional_info[1]
+            size = additional_info.get('size')
             if size:
                 size = size.string.strip()
 
             try:
-                installs = [int(n.replace(',', '').replace('+', '')) for n in additional_info[2].string.strip().split(" - ")]
+                installs = [int(n.replace(',', '').replace('+', '')) for n in additional_info.get('installs').string.strip().split(" - ")]
             except AttributeError:
                 installs = [0, 0]
 
-            current_version = additional_info[3]
+            current_version = additional_info.get('current_version')
             try:
                 current_version = current_version.string.strip()
             except AttributeError:
                 current_version = current_version.span.string.strip()
 
-            required_android_version = additional_info[4]
+            required_android_version = additional_info.get('requires_android')
             if required_android_version:
                 required_android_version = required_android_version.string.strip()
 
-            content_rating = additional_info[5]
+            content_rating = additional_info.get('content_rating')
             if content_rating:
                 content_rating = content_rating.findChildren()[0].string
 
@@ -195,7 +195,7 @@ class PlayScraper(object):
         iap_range = None
         if offers_iap:
             try:
-                iap_range = additional_info[6]
+                iap_range = additional_info.get('in-app_products')
                 if iap_range and re.search('per item', iap_range.string):
                     iap_range = iap_range.string.strip()
             except ValueError:
@@ -253,6 +253,27 @@ class PlayScraper(object):
             'developer_url': developer_url,
             'developer_address': developer_address
         }
+
+    def _parse_additional_info(self, soup):
+        """Extracts an app's additional details from its info page.
+
+        :param soup: a strained BeautifulSoup object of an app
+        :return: a dictionary of app additional details
+        """
+        additional_info = soup.select_one('div.xyOfqd')
+        additional_info_sections = additional_info.select('div.hAyfc')
+
+        sections_data = {}
+        for section in additional_info_sections:
+            try:
+                name = section.select_one('div.BgcNfc').string
+                name = name.replace(' ', '_').lower()
+                data = section.select_one('span.htlgb')
+                sections_data[name] = data
+            except AttributeError:
+                continue
+
+        return sections_data
 
     def _parse_multiple_apps(self, list_response):
         """Extracts app ids from a list's Response object, sends GET requests to
