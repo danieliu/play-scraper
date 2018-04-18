@@ -130,13 +130,15 @@ class PlayScraper(object):
         histogram = {}
         try:
             reviews = int(soup.select_one('span.EymY4b').findChildren()[1].string.replace(',', ''))
-            ratings_section = soup.select_one('div.VEF2C')
-            ratings = [int(r.string.replace(',', '')) for r in ratings_section.select('div.mMF0fd span.UfW5d')]
+            ratings_sections = soup.select('div.VEF2C div.mMF0fd')
             for i in range(5):
-                histogram[5 - i] = ratings[i]
+                stat_span = ratings_sections[i].select_one('span.UfW5d')
+                if stat_span:
+                    histogram[5 - i] = int(stat_span.string.replace(',', ''))
+                else:
+                    histogram[5 - i] = 0
         except AttributeError:
             reviews = 0
-            pass
 
         recent_changes = "\n".join(soup.select('[itemprop=description] content')[1].stripped_strings)
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
