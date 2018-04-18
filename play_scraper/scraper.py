@@ -140,7 +140,10 @@ class PlayScraper(object):
         except AttributeError:
             reviews = 0
 
-        recent_changes = "\n".join(soup.select('[itemprop=description] content')[1].stripped_strings)
+        try:
+            recent_changes = "\n".join(soup.select('[itemprop=description] content')[1].stripped_strings)
+        except IndexError:
+            recent_changes = ""
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
         editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
         try:
