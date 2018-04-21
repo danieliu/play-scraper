@@ -81,14 +81,13 @@ class PlayScraper(object):
             'free': free
         }
 
-    def _parse_app_details(self, soup):
+    def _parse_app_details(self, soup, app_id, url):
         """Extracts an app's details from its info page.
 
         :param soup: a strained BeautifulSoup object of an app
+        :param app_id:
         :return: a dictionary of app details
         """
-        app_id = soup.select_one('div[data-uitype=209]').attrs['data-docid']
-        url = build_url('details', app_id)
         title = soup.select_one('div.id-app-title').string
         icon = urljoin(
             self._base_url,
@@ -267,10 +266,11 @@ class PlayScraper(object):
         app_strainer = SoupStrainer('div', {'class': 'main-content'})
         apps = []
         errors = []
-        for i, r in enumerate(responses):
+        for i, p in enumerate(zip(responses, app_ids)):
+            r, app_id = p
             if r is not None and r.status_code == requests.codes.ok:
                 soup = BeautifulSoup(r.content, 'lxml', parse_only=app_strainer)
-                apps.append(self._parse_app_details(soup))
+                apps.append(self._parse_app_details(soup, app_id, r.url))
             else:
                 errors.append(app_ids[i])
 
@@ -295,7 +295,7 @@ class PlayScraper(object):
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
 
-        return self._parse_app_details(soup)
+        return self._parse_app_details(soup, app_id, url)
 
     def collection(self, collection, category=None, results=None, page=None, age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
