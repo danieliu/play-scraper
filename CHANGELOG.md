@@ -1,5 +1,14 @@
 # Changelog
 
+### 0.1.12: 2018-04-22
+
+* Changes according to Google obfuscation
+* Removed thumbnails (not shown by Google anymore)
+* Removed top_developer badge (not shown by Google anymore)
+* Removed in app products (not shown by Google anymore)
+* Removed developer_id (not shown by Google anymore)
+* App web-site instead of developer url
+
 ### 0.1.11: 2016-05-06
 
 * Arabic in Current Version metadata fix
