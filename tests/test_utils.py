@@ -110,5 +110,6 @@ class TestSendRequest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.url, expected_url)
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -63,7 +63,7 @@ def build_url(method, id_string):
     or similar.
 
     :param method: the corresponding method to get for an id.
-    :param id: an id string query parameter.
+    :param id_string: an id string query parameter.
     :return: a URL string.
     """
     if method == 'developer':

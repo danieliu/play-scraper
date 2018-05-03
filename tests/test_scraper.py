@@ -7,7 +7,7 @@ from play_scraper import settings
 
 
 BASIC_KEYS = 10
-DETAILED_KEYS = 32
+DETAILED_KEYS = 27
 
 
 class ScraperTestBase(unittest.TestCase):
@@ -22,8 +22,8 @@ class TestScrapingDetails(ScraperTestBase):
         self.assertEqual(len(app.keys()), DETAILED_KEYS)
         self.assertEqual(app['app_id'], 'com.android.chrome')
         self.assertEqual(app['category'], ['COMMUNICATION'])
-        self.assertEqual(app['installs'], [1000000000, 5000000000])
-        self.assertTrue(app['top_developer'])
+        self.assertEqual(app['installs'], 1000000000)
+        self.assertFalse(app['editors_choice'])
 
 
 class TestScrapingCollections(ScraperTestBase):
