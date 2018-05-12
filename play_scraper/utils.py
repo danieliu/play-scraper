@@ -11,7 +11,7 @@ import requests
 import grequests
 from bs4 import BeautifulSoup, SoupStrainer
 
-from . import settings as s
+from play_scraper import settings as s
 
 log = logging.getLogger(__name__)
 

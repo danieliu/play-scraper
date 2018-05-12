@@ -11,10 +11,15 @@ except ImportError:
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
-from . import settings as s
-from .lists import CATEGORIES, COLLECTIONS, AGE_RANGE
-from .utils import (build_url, build_collection_url, send_request,
-    generate_post_data, multi_app_request)
+from play_scraper import settings as s
+from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
+from play_scraper.utils import (
+    build_collection_url,
+    build_url,
+    generate_post_data,
+    multi_app_request,
+    send_request,
+)
 
 
 class PlayScraper(object):

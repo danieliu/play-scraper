@@ -7,7 +7,7 @@ with open('play_scraper/__init__.py', 'r') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         f.read(), re.MULTILINE).group(1)
 
-with open('README.rst', 'r', 'utf-8') as f:
+with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
 
 setup(
@@ -15,6 +15,7 @@ setup(
     version=version,
     description='Google Play Store application scraper',
     long_description=readme,
+    long_description_content_type='text/markdown',
     url='https://github.com/danieliu/play-scraper',
     author='Daniel Liu',
     author_email='idaniel.liu@gmail.com',

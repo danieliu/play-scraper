@@ -8,7 +8,7 @@ play_scraper.api
 
 """
 
-from . import scraper
+from play_scraper import scraper
 
 
 def details(app_id):
@@ -90,3 +90,4 @@ def similar(app_id, **kwargs):
     """
     s = scraper.PlayScraper()
     return s.similar(app_id, **kwargs)
+

@@ -1,6 +1,10 @@
-beautifulsoup4==4.4.1
-gevent==1.1.1
-greenlet==0.4.9
+beautifulsoup4==4.6.0
+certifi==2018.4.16
+chardet==3.0.4
+gevent==1.2.2
+greenlet==0.4.13
 grequests==0.3.0
-lxml==3.6.0
-requests==2.9.1
+idna==2.6
+lxml==4.2.1
+requests==2.18.4
+urllib3==1.22
