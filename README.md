@@ -228,5 +228,5 @@ Options:
 
 Run tests:
 ```
-python -m unittest discover
+make test
 ```

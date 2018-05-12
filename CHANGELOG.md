@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.1.12: 2018-05-12
+
+* Clean up some code here and there.
+* Use absolute imports instead of relative.
+* Switch README back to markdown now that PyPi supports it.
+
 ### 0.1.11: 2016-05-06
 
 * Arabic in Current Version metadata fix
