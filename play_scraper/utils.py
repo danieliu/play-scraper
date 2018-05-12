@@ -94,13 +94,15 @@ def build_collection_url(category='', collection=''):
     return url
 
 
-def send_request(method, url, data=None, params=None, headers=None, verify=True):
+def send_request(method, url, data=None, params=None, headers=None,
+                 timeout=30, verify=True):
     """Sends a request to the url and returns the response.
 
     :param method: HTTP method to use.
     :param url: URL to send.
     :param data: Dictionary of post data to send.
     :param headers: Dictionary of headers to include.
+    :param timeout: number of seconds before timing out the request
     :param verify: a bool for requesting SSL verification.
     :return: a Response object.
     """
@@ -117,6 +119,7 @@ def send_request(method, url, data=None, params=None, headers=None, verify=True)
             data=data,
             params=params,
             headers=headers,
+            timeout=timeout,
             verify=verify)
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
@@ -165,7 +168,10 @@ def get_categories():
     strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
 
     response = send_request('GET', s.BASE_URL)
-    soup = BeautifulSoup(response.content, 'lxml', parse_only=strainer)
+    soup = BeautifulSoup(response.content,
+                         'lxml',
+                         from_encoding='utf8',
+                         parse_only=strainer)
     category_links = soup.select('a.child-submenu-link')
 
     age = '?age='

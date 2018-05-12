@@ -118,7 +118,7 @@ class PlayScraper(object):
 
         description_soup = soup.select_one('div.show-more-content.text-body div')
         if description_soup:
-            description = "\n".join(description_soup.stripped_strings)
+            description = '\n'.join(description_soup.stripped_strings)
             description_html = description_soup.encode_contents().decode('utf-8')
         else:
             description = ''
@@ -263,10 +263,15 @@ class PlayScraper(object):
         :param list_response: the Response object from a list request
         :return: a list of app dictionaries
         """
-        list_strainer = SoupStrainer('span', {'class': 'preview-overlay-container'})
-        soup = BeautifulSoup(list_response.content, 'lxml', parse_only=list_strainer)
+        list_strainer = SoupStrainer('span',
+                                     {'class': 'preview-overlay-container'})
+        soup = BeautifulSoup(list_response.content,
+                             'lxml',
+                             from_encoding='utf8',
+                             parse_only=list_strainer)
 
-        app_ids = [x.attrs['data-docid'] for x in soup.select('span.preview-overlay-container')]
+        app_ids = [x.attrs['data-docid']
+                   for x in soup.select('span.preview-overlay-container')]
         responses = multi_app_request(app_ids)
 
         app_strainer = SoupStrainer('div', {'class': 'main-content'})
@@ -280,33 +285,34 @@ class PlayScraper(object):
                 errors.append(app_ids[i])
 
         if errors:
-            self._log.error("There was an error parsing the following apps: {errors}.".format(
-                errors=", ".join(errors)))
+            self._log.error('There was an error parsing the following apps: {errors}.'.format(
+                errors=', '.join(errors)))
 
         return apps
 
     def details(self, app_id):
         """Sends a GET request and parses an application's details.
 
-        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param app_id: the app to retrieve details, e.g. 'com.nintendo.zaaa'
         :return: a dictionary of app details
         """
         url = build_url('details', app_id)
 
         try:
             response = send_request('GET', url)
-            soup = BeautifulSoup(response.content, 'lxml')
+            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
         except requests.exceptions.HTTPError as e:
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
 
         return self._parse_app_details(soup)
 
-    def collection(self, collection, category=None, results=None, page=None, age=None, detailed=False):
+    def collection(self, collection_id, category=None, results=None, page=None,
+                   age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
-        :param collection: the collection id, e.g. 'NEW_FREE'.
+        :param collection_id: the collection id, e.g. 'NEW_FREE'.
         :param category: (optional) the category name, e.g. 'GAME_ACTION'.
         :param results: the number of apps to retrieve at a time.
         :param page: page number to retrieve; limitation: page * results <= 500.
@@ -314,7 +320,7 @@ class PlayScraper(object):
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
-        collection = self.collections[collection]
+        collection_name = self.collections[collection_id]
         category = '' if category is None else self.categories[category]
 
         results = s.NUM_RESULTS if results is None else results
@@ -329,15 +335,16 @@ class PlayScraper(object):
         if category.startswith('FAMILY') and age is not None:
             params['age'] = self.age[age]
 
-        url = build_collection_url(category, collection)
+        url = build_collection_url(category, collection_name)
         data = generate_post_data(results, page)
         response = send_request('POST', url, data, params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            soup = BeautifulSoup(response.content, 'lxml')
-            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
+            apps = [self._parse_card_info(app)
+                    for app in soup.select('div[data-uitype=500]')]
 
         return apps
 
@@ -361,7 +368,7 @@ class PlayScraper(object):
         url = build_url('developer', developer)
         data = generate_post_data(results, 0, pagtok)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -414,7 +421,7 @@ class PlayScraper(object):
         }
 
         response = send_request('POST', self._search_url, data, params)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -437,7 +444,7 @@ class PlayScraper(object):
         url = build_url('similar', app_id)
         data = generate_post_data(results)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
