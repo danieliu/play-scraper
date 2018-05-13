@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -86,148 +87,177 @@ class PlayScraper(object):
             'free': free
         }
 
+    def _parse_additional_info(self, soup):
+        """Parses an app's additional information section on its detail page.
+
+        :param soup: the additional_info section BeautifulSoup object
+        :return: a dictionary of the app's parsed additional info
+        """
+        # This is super ugly because the CSS is obfuscated and doesn't have good
+        # distinguishing selectors available; each section's markup is nearly
+        # identical, so we get the values with a similar function.
+        section_titles_divs = [x for x in soup.select('div.hAyfc div.BgcNfc')]
+        get_value_span = lambda x: x.next_sibling.select_one('span.htlgb')
+
+        title_normalization = {
+            'Updated': 'updated',
+            'Size': 'size',
+            'Installs': 'installs',
+            'Current Version': 'current_version',
+            'Requires Android': 'required_android_version',
+            'Content Rating': 'content_rating',
+            'In-app Products': 'iap_range',
+            'Interactive Elements': 'interactive_elements',
+            'Offered By': 'developer',
+            'Developer': 'developer_info',
+        }
+
+        data = {
+            'updated': None,
+            'size': None,
+            'installs': None,
+            'current_version': None,
+            'required_android_version': None,
+            'content_rating': None,
+            'iap_range': None,
+            'interactive_elements': None,
+            'developer': None,
+            'developer_email': None,
+            'developer_url': None,
+            'developer_address': None,
+        }
+
+        for title_div in section_titles_divs:
+            section_title = title_div.string
+            if section_title in title_normalization:
+                title_key = title_normalization[section_title]
+                value_div = get_value_span(title_div)
+
+                if title_key == 'content_rating':
+                    # last string in list is 'Learn more' link
+                    value = [rating.strip()
+                             for rating in value_div.strings][:-1]
+                elif title_key == 'interactive_elements':
+                    value = [ielement.strip()
+                             for ielement in value_div.strings]
+                elif title_key == 'iap_range':
+                    iaps = re.search(r'(\$\d+\.\d{2}) - (\$\d+\.\d{2})',
+                                     value_div.string)
+                    if iaps:
+                        value = iaps.groups()
+                elif title_key == 'developer_info':
+                    developer_email = value_div.select_one('a[href^="mailto:"]')
+                    if developer_email:
+                        developer_email = (developer_email.attrs['href']
+                                                          .split(':')[1])
+                    developer_url = value_div.select_one('a[href^="http"]')
+                    if developer_url:
+                        developer_url = developer_url.attrs['href']
+
+                    developer_address = value_div.select('div')[-1].contents[0]
+                    if developer_address.name is not None:
+                        # If a bs4 Tag, it will have name attribute, e.g. 'a'
+                        # Set the address to None for 'not found'
+                        # The address div should just be a string, no name attr
+                        developer_address = None
+                    dev_data = {'developer_email': developer_email,
+                                'developer_url': developer_url,
+                                'developer_address': developer_address}
+                    data.update(dev_data)
+                    continue
+                else:
+                    value = value_div.string
+
+                data[title_key] = value
+        return data
+
     def _parse_app_details(self, soup):
         """Extracts an app's details from its info page.
 
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app details
         """
-        app_id = soup.select_one('div[data-uitype=209]').attrs['data-docid']
-        url = build_url('details', app_id)
-        title = soup.select_one('div.id-app-title').string
-        icon = urljoin(
-            self._base_url,
-            soup.select_one('img.cover-image').attrs['src'].split('=')[0])
-        screenshots = [urljoin(
-            self._base_url,
-            img.attrs['src']) for img in soup.select('img.full-screenshot')]
-        thumbnails = [urljoin(
-            self._base_url,
-            img.attrs['src']) for img in soup.select('img.screenshot')]
+        title = soup.select_one('h1[itemprop="name"] span').string
+        icon = (soup.select_one('img[alt="Cover art"]')
+                    .attrs['src']
+                    .split('=')[0])
+        editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
+
+        # Main category will be first
+        category = [c.attrs['href'].split('/')[-1]
+                    for c in soup.select('a[itemprop="genre"]')]
+
+        # Let the user handle modifying the URL to fetch different resolutions
+        # Removing the end `=w720-h310-rw` doesn't seem to give original res?
+        screenshots = [img.attrs['src']
+                       for img in soup.select('img[alt="Screenshot Image"]')]
 
         try:
-            video = soup.select_one('span.preview-overlay-container').attrs.get('data-video-url', None)
+            video = (soup.select_one('button[data-trailer-url^="https"]')
+                         .attrs.get('data-trailer-url'))
             if video is not None:
                 video = video.split('?')[0]
         except AttributeError:
             video = None
-            pass
 
-        # Main category will be first
-        category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
-
-        description_soup = soup.select_one('div.show-more-content.text-body div')
+        description_soup = soup.select_one(
+            'div[itemprop="description"] content div')
         if description_soup:
             description = '\n'.join(description_soup.stripped_strings)
-            description_html = description_soup.encode_contents().decode('utf-8')
+            description_html = description_soup.encode_contents()
         else:
-            description = ''
-            description_html = ''
+            description = description_html = None
 
-        # Reviews & Ratings
+       # Reviews & Ratings
         try:
-            score = float(soup.select_one('meta[itemprop="ratingValue"]').attrs['content'])
+            score = soup.select_one('div.BHMmbe').text
         except AttributeError:
             score = None
-            pass
 
         histogram = {}
         try:
-            reviews = int(soup.select_one('meta[itemprop="ratingCount"]').attrs['content'])
-            ratings_section = soup.select_one('div.rating-histogram')
-            ratings = [int(r.string.replace(',', '')) for r in ratings_section.select('span.bar-number')]
+            reviews = int(soup.select_one('span[aria-label$="ratings"]')
+                              .text
+                              .replace(',', ''))
+            ratings_section = soup.select_one('div.VEF2C')
+            num_ratings = [int(rating.attrs['title'].replace(',', ''))
+                           for rating in ratings_section.select(
+                               'div span[style^="width:"]')]
             for i in range(5):
-                histogram[5 - i] = ratings[i]
+                histogram[5 - i] = num_ratings[i]
         except AttributeError:
             reviews = 0
-            pass
 
-        recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
-        top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
-        editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
+
+        try:
+            changes_soup = soup.select('div[itemprop="description"] content')[1]
+            recent_changes = '\n'.join([x.string.strip() for x in changes_soup])
+        except (IndexError, AttributeError):
+            recent_changes = None
+
         try:
             price = soup.select_one('meta[itemprop="price"]').attrs['content']
         except AttributeError:
+            # App is probably pre-register, requires logged in to see
             try:
-                price = soup.select_one('div.preregistration-text-add').string.strip()
+                price = soup.select_one('not-preregistered').string.strip()
             except AttributeError:
-                price = 'Not Available'
+                price = None
 
         free = (price == '0')
 
-        # Additional information section
-        additional_info = soup.select_one('div.metadata div.details-section-contents')
-        updated = additional_info.select_one('div[itemprop="datePublished"]')
-        if updated:
-            updated = updated.string
+        additional_info_data = self._parse_additional_info(
+            soup.select_one('.xyOfqd'))
 
-        size = additional_info.select_one('div[itemprop="fileSize"]')
-        if size:
-            size = size.string.strip()
+        offers_iap = bool(additional_info_data.get('iap_range'))
 
-        try:
-            installs = [int(n.replace(',', '')) for n in additional_info.select_one(
-                'div[itemprop="numDownloads"]').string.strip().split(" - ")]
-        except AttributeError:
-            installs = [0, 0]
+        dev_id = soup.select_one('a.hrTbp.R8zArc').attrs['href'].split('=')[1]
+        developer_id = dev_id if dev_id else None
 
-        current_version = additional_info.select_one('div[itemprop="softwareVersion"]')
-        if current_version:
-            try:
-                current_version = current_version.string.strip()
-            except AttributeError:
-                current_version = current_version.span.string.strip()
-
-        required_android_version = additional_info.select_one('div[itemprop="operatingSystems"]')
-        if required_android_version:
-            required_android_version = required_android_version.string.strip()
-
-        content_rating = additional_info.select_one('div[itemprop="contentRating"]')
-        if content_rating:
-            content_rating = content_rating.string
-
-        meta_info = additional_info.select('.title')
-        meta_info_titles = [x.string.strip() for x in meta_info]
-        try:
-            i_elements_index = meta_info_titles.index('Interactive Elements')
-            interactive_elements = meta_info[i_elements_index].next_sibling.next_sibling.string.split(', ')
-        except ValueError:
-            interactive_elements = []
-            pass
-
-        offers_iap = bool(soup.select_one('div.inapp-msg'))
-        iap_range = None
-        if offers_iap:
-            try:
-                iap_price_index = meta_info_titles.index('In-app Products')
-                iap_range = meta_info[iap_price_index].next_sibling.next_sibling.string
-            except ValueError:
-                iap_range = 'Not Available'
-                pass
-
-        developer = soup.select_one('span[itemprop="name"]').string
-
-        dev_id = soup.select_one('a.document-subtitle.primary').attrs['href'].split('=')[1]
-        developer_id = dev_id if dev_id.isdigit() else None
-
-        try:
-            developer_email = additional_info.select_one('a[href^="mailto"]').attrs['href'].split(":")[1]
-        except AttributeError:
-            developer_email = None
-        developer_url = additional_info.select_one('a[href^="https://www.google.com"]')
-        if developer_url:
-            developer_url = developer_url.attrs['href'].split("&")[0].split("=")[1]
-        developer_address = additional_info.select_one('.physical-address')
-        if developer_address:
-            developer_address = developer_address.string
-
-        return {
-            'app_id': app_id,
+        data = {
             'title': title,
             'icon': icon,
-            'url': url,
             'screenshots': screenshots,
-            'thumbnails': thumbnails,
             'video': video,
             'category': category,
             'score': score,
@@ -236,25 +266,16 @@ class PlayScraper(object):
             'description': description,
             'description_html': description_html,
             'recent_changes': recent_changes,
-            'top_developer': top_developer,
             'editors_choice': editors_choice,
             'price': price,
             'free': free,
-            'updated': updated,
-            'size': size,
-            'installs': installs,
-            'current_version': current_version,
-            'required_android_version': required_android_version,
-            'content_rating': content_rating,
-            'interactive_elements': interactive_elements,
             'iap': offers_iap,
-            'iap_range': iap_range,
-            'developer': developer,
             'developer_id': developer_id,
-            'developer_email': developer_email,
-            'developer_url': developer_url,
-            'developer_address': developer_address
         }
+
+        data.update(additional_info_data)
+
+        return data
 
     def _parse_multiple_apps(self, list_response):
         """Extracts app ids from a list's Response object, sends GET requests to
@@ -305,7 +326,12 @@ class PlayScraper(object):
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
 
-        return self._parse_app_details(soup)
+        app_json = self._parse_app_details(soup)
+        app_json.update({
+            'app_id': app_id,
+            'url': url,
+        })
+        return app_json
 
     def collection(self, collection_id, category=None, results=None, page=None,
                    age=None, detailed=False):

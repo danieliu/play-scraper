@@ -7,7 +7,38 @@ from play_scraper import settings
 
 
 BASIC_KEYS = 10
-DETAILED_KEYS = 32
+DETAIL_KEYS = {
+    'app_id',
+    'category',
+    'content_rating',
+    'current_version',
+    'description',
+    'description_html',
+    'developer',
+    'developer_address',
+    'developer_email',
+    'developer_id',
+    'developer_url',
+    'editors_choice',
+    'free',
+    'histogram',
+    'iap',
+    'iap_range',
+    'icon',
+    'installs',
+    'interactive_elements',
+    'price',
+    'recent_changes',
+    'required_android_version',
+    'reviews',
+    'score',
+    'screenshots',
+    'size',
+    'title',
+    'updated',
+    'url',
+    'video',
+}
 
 
 class ScraperTestBase(unittest.TestCase):
@@ -15,15 +46,16 @@ class ScraperTestBase(unittest.TestCase):
         self.s = PlayScraper()
 
 
-class TestScrapingDetails(ScraperTestBase):
+class DetailsTest(ScraperTestBase):
     def test_fetching_app_with_all_details(self):
-        app = self.s.details('com.android.chrome')
+        app_data = self.s.details('com.android.chrome')
 
-        self.assertEqual(len(app.keys()), DETAILED_KEYS)
-        self.assertEqual(app['app_id'], 'com.android.chrome')
-        self.assertEqual(app['category'], ['COMMUNICATION'])
-        self.assertEqual(app['installs'], [1000000000, 5000000000])
-        self.assertTrue(app['top_developer'])
+        self.assertTrue(all(key in app_data for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(app_data.keys()))
+        self.assertEqual('com.android.chrome', app_data['app_id'])
+        self.assertEqual(['COMMUNICATION'], app_data['category'])
+        self.assertEqual('1,000,000,000+', app_data['installs'])
+        self.assertEqual('Google LLC', app_data['developer'])
 
 
 class TestScrapingCollections(ScraperTestBase):
@@ -40,7 +72,7 @@ class TestScrapingCollections(ScraperTestBase):
         apps = self.s.collection('TOP_FREE', results=1, detailed=True)
 
         self.assertEqual(len(apps), 1)
-        self.assertEqual(len(apps[0].keys()), DETAILED_KEYS)
+        self.assertEqual(len(apps[0].keys()), DETAIL_KEYS)
 
     def test_fetching_collection_family_category(self):
         apps = self.s.collection('TOP_FREE', results=1, age='SIX_EIGHT')
