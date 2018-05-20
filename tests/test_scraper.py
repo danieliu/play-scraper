@@ -81,8 +81,8 @@ class CollectionTest(ScraperTestBase):
     def test_default_num_results(self):
         apps = self.s.collection('NEW_FREE', page=1)
 
-        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
         self.assertEqual(settings.NUM_RESULTS, len(apps))
 
     def test_detailed_collection(self):
@@ -116,19 +116,24 @@ class DeveloperTest(ScraperTestBase):
     def test_fetching_developer_default_results(self):
         apps = self.s.developer('Disney')
 
-        self.assertEqual(len(apps), settings.DEV_RESULTS)
-        self.assertEqual(len(apps[0].keys()), len(BASIC_KEYS))
+        self.assertEqual(settings.DEV_RESULTS, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_maximum_results(self):
         # 'CrowdCompass by Cvent' has ~273 apps
         apps = self.s.developer('CrowdCompass by Cvent', results=120)
-        self.assertEqual(len(apps), 120)
+
+        self.assertEqual(120, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_over_max_results_fetches_five(self):
-        maximum = self.s.developer('CrowdCompass by Cvent', results=121)
-        num_apps = len(maximum)
+        apps = self.s.developer('CrowdCompass by Cvent', results=121)
 
-        self.assertEqual(num_apps, 5)
+        self.assertEqual(5, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_page_out_of_range(self):
         with self.assertRaises(ValueError):
@@ -137,7 +142,7 @@ class DeveloperTest(ScraperTestBase):
                              page=13)
 
 
-class TestSuggestionQueries(ScraperTestBase):
+class SuggestionTest(ScraperTestBase):
     def test_empty_query(self):
         with self.assertRaises(ValueError):
             self.s.suggestions('')
@@ -148,11 +153,13 @@ class TestSuggestionQueries(ScraperTestBase):
         self.assertGreater(len(suggestions), 0)
 
 
-class TestSearchQuery(ScraperTestBase):
+class SearchTest(ScraperTestBase):
     def test_basic_search(self):
         apps = self.s.search('cats')
 
-        self.assertEqual(len(apps), 20)
+        self.assertEqual(20, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
 
 if __name__ == '__main__':

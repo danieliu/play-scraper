@@ -498,3 +498,4 @@ class PlayScraper(object):
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
         return apps
+
