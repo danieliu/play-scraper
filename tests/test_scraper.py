@@ -2,8 +2,9 @@
 
 import unittest
 
-from play_scraper.scraper import PlayScraper
 from play_scraper import settings
+from play_scraper.lists import CATEGORIES
+from play_scraper.scraper import PlayScraper
 
 
 BASIC_KEYS = {
@@ -170,6 +171,14 @@ class SimilarTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
+
+class CategoryTest(ScraperTestBase):
+    def test_categories_ok(self):
+        categories = self.s.categories()
+
+        # This will fail when categories are removed over time, but not if
+        # new categories are added.
+        self.assertTrue(all(key in categories for key in CATEGORIES))
 
 
 if __name__ == '__main__':

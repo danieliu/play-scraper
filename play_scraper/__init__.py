@@ -17,6 +17,7 @@ from play_scraper.api import (
     search,
     similar,
     suggestions,
+    categories,
 )
 
 

@@ -90,3 +90,12 @@ def similar(app_id, **kwargs):
     s = scraper.PlayScraper()
     return s.similar(app_id, **kwargs)
 
+def categories():
+    """Sends a GET request to the front page (app store base url), parses and
+    returns a list of all available categories.
+
+    Note: May contain some promotions, e.g. "Popular Characters"
+    """
+    s = scraper.PlayScraper()
+    return s.categories()
+
