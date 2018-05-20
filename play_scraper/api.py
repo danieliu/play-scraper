@@ -80,11 +80,10 @@ def search(query, **kwargs):
 
 
 def similar(app_id, **kwargs):
-    """Sends a POST request and retrieves a list of applications similar to
-    the specified app.
+    """Sends a GET request, follows the redirect, and retrieves a list of
+    applications similar to the specified app.
 
     :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
-    :param results: the number of apps to retrieve at a time.
     :param detailed: if True, sends request per app for its full detail
     :return: a list of similar apps
     """

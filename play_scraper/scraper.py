@@ -476,20 +476,16 @@ class PlayScraper(object):
 
         return apps
 
-    def similar(self, app_id, results=None, detailed=False):
-        """Sends a POST request and retrieves a list of applications similar to
-        the specified app.
+    def similar(self, app_id, detailed=False):
+        """Sends a GET request, follows the redirect, and retrieves a list of
+        applications similar to the specified app.
 
         :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
-        :param results: the number of apps to retrieve at a time.
         :param detailed: if True, sends request per app for its full detail
         :return: a list of similar apps
         """
-        results = s.SIMILAR_RESULTS if results is None else results
-
         url = build_url('similar', app_id)
-        data = generate_post_data(results)
-        response = send_request('POST', url, data)
+        response = send_request('GET', url, allow_redirects=True)
         soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:

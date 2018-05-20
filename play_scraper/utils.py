@@ -95,7 +95,7 @@ def build_collection_url(category='', collection=''):
 
 
 def send_request(method, url, data=None, params=None, headers=None,
-                 timeout=30, verify=True):
+                 timeout=30, verify=True, allow_redirects=False):
     """Sends a request to the url and returns the response.
 
     :param method: HTTP method to use.
@@ -120,7 +120,8 @@ def send_request(method, url, data=None, params=None, headers=None,
             params=params,
             headers=headers,
             timeout=timeout,
-            verify=verify)
+            verify=verify,
+            allow_redirects=allow_redirects)
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()
     except requests.exceptions.RequestException as e:
