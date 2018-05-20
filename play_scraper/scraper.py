@@ -414,11 +414,11 @@ class PlayScraper(object):
         url = build_url('developer', developer)
         data = generate_post_data(results, 0, pagtok)
         response = send_request('POST', url, data)
-        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
+            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
             apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
 
         return apps

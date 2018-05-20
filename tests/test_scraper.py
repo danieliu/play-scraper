@@ -112,7 +112,7 @@ class CollectionTest(ScraperTestBase):
             self.s.collection('invalid_collection_id')
 
 
-class TestScrapingDeveloperApps(ScraperTestBase):
+class DeveloperTest(ScraperTestBase):
     def test_fetching_developer_default_results(self):
         apps = self.s.developer('Disney')
 
@@ -132,10 +132,9 @@ class TestScrapingDeveloperApps(ScraperTestBase):
 
     def test_page_out_of_range(self):
         with self.assertRaises(ValueError):
-            self.s.developer(
-                'CrowdCompass by Cvent',
-                results=20,
-                page=13)
+            self.s.developer('CrowdCompass by Cvent',
+                             results=20,
+                             page=13)
 
 
 class TestSuggestionQueries(ScraperTestBase):
@@ -158,3 +157,4 @@ class TestSearchQuery(ScraperTestBase):
 
 if __name__ == '__main__':
     unittest.main()
+
