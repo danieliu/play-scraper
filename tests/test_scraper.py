@@ -6,7 +6,19 @@ from play_scraper.scraper import PlayScraper
 from play_scraper import settings
 
 
-BASIC_KEYS = 10
+BASIC_KEYS = {
+    'app_id',
+    'description',
+    'developer',
+    'developer_id',
+    'free',
+    'full_price',
+    'icon',
+    'price',
+    'score',
+    'title',
+    'url',
+}
 DETAIL_KEYS = {
     'app_id',
     'category',
@@ -58,27 +70,46 @@ class DetailsTest(ScraperTestBase):
         self.assertEqual('Google LLC', app_data['developer'])
 
 
-class TestScrapingCollections(ScraperTestBase):
-    def test_fetching_collection_non_detailed(self):
+class CollectionTest(ScraperTestBase):
+    def test_non_detailed_collection(self):
         apps = self.s.collection('NEW_FREE', results=2)
-        apps_p2 = self.s.collection('NEW_FREE', page=1)
 
-        self.assertEqual(len(apps), 2)
-        self.assertEqual(len(apps[0].keys()), BASIC_KEYS)
-        self.assertEqual(len(apps_p2), settings.NUM_RESULTS)
-        self.assertNotEqual(apps, apps_p2)
+        self.assertEqual(2, len(apps))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
 
-    def test_fetching_collection_detailed(self):
+    def test_default_num_results(self):
+        apps = self.s.collection('NEW_FREE', page=1)
+
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(settings.NUM_RESULTS, len(apps))
+
+    def test_detailed_collection(self):
         apps = self.s.collection('TOP_FREE', results=1, detailed=True)
 
         self.assertEqual(len(apps), 1)
-        self.assertEqual(len(apps[0].keys()), DETAIL_KEYS)
+        self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
-    def test_fetching_collection_family_category(self):
-        apps = self.s.collection('TOP_FREE', results=1, age='SIX_EIGHT')
+    def test_family_with_age_collection(self):
+        apps = self.s.collection('TOP_FREE', 'FAMILY', results=1, age='SIX_EIGHT')
 
         self.assertEqual(len(apps), 1)
-        self.assertEqual(len(apps[0].keys()), BASIC_KEYS)
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_promotion_collection_id(self):
+        apps = self.s.collection('promotion_3000000d51_pre_registration_games',
+                                 results=2)
+
+        self.assertEqual(2, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_invalid_collection_id(self):
+        with self.assertRaises(ValueError):
+            self.s.collection('invalid_collection_id')
 
 
 class TestScrapingDeveloperApps(ScraperTestBase):
@@ -86,7 +117,7 @@ class TestScrapingDeveloperApps(ScraperTestBase):
         apps = self.s.developer('Disney')
 
         self.assertEqual(len(apps), settings.DEV_RESULTS)
-        self.assertEqual(len(apps[0].keys()), BASIC_KEYS)
+        self.assertEqual(len(apps[0].keys()), len(BASIC_KEYS))
 
     def test_maximum_results(self):
         # 'CrowdCompass by Cvent' has ~273 apps

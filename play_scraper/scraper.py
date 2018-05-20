@@ -25,9 +25,6 @@ from play_scraper.utils import (
 
 class PlayScraper(object):
     def __init__(self):
-        self.categories = CATEGORIES
-        self.collections = COLLECTIONS
-        self.age = AGE_RANGE
         self._base_url = s.BASE_URL
         self._suggestion_url = s.SUGGESTION_URL
         self._search_url = s.SEARCH_URL
@@ -49,28 +46,33 @@ class PlayScraper(object):
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
         title = soup.select_one('a.title').attrs['title']
 
-        dev = soup.select_one('a.subtitle')
-        developer = dev.attrs['title']
-        dev_id = dev.attrs['href'].split('=')[1]
-        developer_id = dev_id if dev_id.isdigit() else None
+        dev_soup = soup.select_one('a.subtitle')
+        developer = dev_soup.attrs['title']
+        developer_id = dev_soup.attrs['href'].split('=')[1]
 
         description = soup.select_one('div.description').text.strip()
         score = soup.select_one('div.tiny-star')
         if score is not None:
             score = score.attrs['aria-label'].strip().split(' ')[1]
 
-        # Most apps will have 'Free' or their price
         try:
             price = soup.select_one('span.display-price').string
         except AttributeError:
             try:
-                # Pre-register apps 'Coming Soon'
-                price = soup.select_one('.price').string
+                # Pre-register apps are 'Coming Soon'
+                price = soup.select_one('a.price').string
             except AttributeError:
                 # Country restricted, no price or buttons shown
-                price = 'Not Available'
+                price = None
 
-        free = (price == 'Free')
+        full_price = None
+        if price is not None:
+            try:
+                full_price = soup.select_one('span.full-price').string
+            except AttributeError:
+                full_price = None
+
+        free = (price is None)
         if free is True:
             price = '0'
 
@@ -83,6 +85,7 @@ class PlayScraper(object):
             'developer_id': developer_id,
             'description': description,
             'score': score,
+            'full_price': full_price,
             'price': price,
             'free': free
         }
@@ -295,13 +298,21 @@ class PlayScraper(object):
                    for x in soup.select('span.preview-overlay-container')]
         responses = multi_app_request(app_ids)
 
-        app_strainer = SoupStrainer('div', {'class': 'main-content'})
+        app_strainer = SoupStrainer('div', {'class': 'LXrl4c'})
         apps = []
         errors = []
         for i, r in enumerate(responses):
             if r is not None and r.status_code == requests.codes.ok:
-                soup = BeautifulSoup(r.content, 'lxml', parse_only=app_strainer)
-                apps.append(self._parse_app_details(soup))
+                soup = BeautifulSoup(r.content,
+                                     'lxml',
+                                     from_encoding='utf8',
+                                     parse_only=app_strainer)
+                app_json = self._parse_app_details(soup)
+                app_json.update({
+                    'app_id': app_ids[i],
+                    'url': r.url,
+                })
+                apps.append(app_json)
             else:
                 errors.append(app_ids[i])
 
@@ -333,21 +344,30 @@ class PlayScraper(object):
         })
         return app_json
 
-    def collection(self, collection_id, category=None, results=None, page=None,
-                   age=None, detailed=False):
+    def collection(self, collection_id, category_id=None, results=None,
+                   page=None, age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
         :param collection_id: the collection id, e.g. 'NEW_FREE'.
-        :param category: (optional) the category name, e.g. 'GAME_ACTION'.
+        :param category_id: (optional) the category id, e.g. 'GAME_ACTION'.
         :param results: the number of apps to retrieve at a time.
         :param page: page number to retrieve; limitation: page * results <= 500.
         :param age: an age range to filter by (only for FAMILY categories)
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
-        collection_name = self.collections[collection_id]
-        category = '' if category is None else self.categories[category]
+        if (collection_id not in COLLECTIONS and
+                not collection_id.startswith('promotion')):
+            raise ValueError('Invalid collection_id.')
+        if collection_id in COLLECTIONS:
+            collection_name = COLLECTIONS[collection_id]
+        else:
+            collection_name = collection_id
+
+        category = '' if category_id is None else CATEGORIES.get(category_id)
+        if category is None:
+            raise ValueError('Invalid category_id.')
 
         results = s.NUM_RESULTS if results is None else results
         if results > 120:
@@ -359,7 +379,7 @@ class PlayScraper(object):
 
         params = {}
         if category.startswith('FAMILY') and age is not None:
-            params['age'] = self.age[age]
+            params['age'] = AGE_RANGE[age]
 
         url = build_collection_url(category, collection_name)
         data = generate_post_data(results, page)
@@ -369,8 +389,8 @@ class PlayScraper(object):
             apps = self._parse_multiple_apps(response)
         else:
             soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
-            apps = [self._parse_card_info(app)
-                    for app in soup.select('div[data-uitype=500]')]
+            apps = [self._parse_card_info(app_card)
+                    for app_card in soup.select('div[data-uitype=500]')]
 
         return apps
 

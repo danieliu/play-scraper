@@ -75,7 +75,7 @@ def build_url(method, id_string):
 
 
 def build_collection_url(category='', collection=''):
-    """Creates the absolute url based on the category and collection id's.
+    """Creates the absolute url based on the category and collection ids.
 
     :param category: the category to filter by.
     :param collection: the collection to get.
