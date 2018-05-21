@@ -444,7 +444,7 @@ class PlayScraper(object):
         }
 
         response = send_request('GET', self._suggestion_url, params=params)
-        suggestions = [q['s'] for q in json.loads(response.content)]
+        suggestions = [q['s'] for q in response.json()]
         return suggestions
 
     def search(self, query, page=None, detailed=False):
