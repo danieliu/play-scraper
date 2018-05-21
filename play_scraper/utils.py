@@ -38,8 +38,8 @@ def generate_post_data(results=None, page=None, pagtok=None, children=0):
     :param results: the number of results to return.
     :param page: the page number; used to calculate start = page * results.
     :param pagtok: a page token string for pagination in search.
-    :param children: number of apps under each collection (used only when scraping
-        a top-level category's collections).
+    :param children: number of apps under each collection (used only when
+                     scraping a top-level category's collections).
     :return: a dictionary of post data.
     """
     data = {
@@ -155,4 +155,3 @@ def multi_app_request(apps, size=None, headers=None, verify=True):
         exception_handler=_handle_grequest_exception)
 
     return responses
-

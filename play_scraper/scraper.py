@@ -39,8 +39,8 @@ class PlayScraper(object):
         :return: a dictionary of available basic app info
         """
         app_id = soup.attrs['data-docid']
-        url = urljoin(
-            self._base_url, soup.select_one('a.card-click-target').attrs['href'])
+        url = urljoin(self._base_url,
+                      soup.select_one('a.card-click-target').attrs['href'])
         icon = urljoin(
             self._base_url,
             soup.select_one('img.cover-image').attrs['src'].split('=')[0])
@@ -184,7 +184,8 @@ class PlayScraper(object):
         icon = (soup.select_one('img[alt="Cover art"]')
                     .attrs['src']
                     .split('=')[0])
-        editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
+        editors_choice = bool(
+            soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
 
         # Main category will be first
         category = [c.attrs['href'].split('/')[-1]
@@ -395,8 +396,8 @@ class PlayScraper(object):
         return apps
 
     def developer(self, developer, results=None, page=None, detailed=False):
-        """Sends a POST request and retrieves a list of the developer's published
-        applications on the Play Store.
+        """Sends a POST request and retrieves a list of the developer's
+        published applications on the Play Store.
 
         :param developer: developer name to retrieve apps from, e.g. 'Disney'
         :param results: the number of app results to retrieve
@@ -419,7 +420,8 @@ class PlayScraper(object):
             apps = self._parse_multiple_apps(response)
         else:
             soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
-            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+            apps = [self._parse_card_info(app)
+                    for app in soup.select('div[data-uitype=500]')]
 
         return apps
 
@@ -472,7 +474,8 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+            apps = [self._parse_card_info(app)
+                    for app in soup.select('div[data-uitype=500]')]
 
         return apps
 
@@ -491,7 +494,8 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [self._parse_card_info(app) for app in soup.select('div[data-uitype=500]')]
+            apps = [self._parse_card_info(app)
+                    for app in soup.select('div[data-uitype=500]')]
 
         return apps
 
@@ -529,4 +533,3 @@ class PlayScraper(object):
                     'category_id': category_id}
 
         return categories
-

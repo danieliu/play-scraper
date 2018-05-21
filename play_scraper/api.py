@@ -98,4 +98,3 @@ def categories():
     """
     s = scraper.PlayScraper()
     return s.categories()
-
