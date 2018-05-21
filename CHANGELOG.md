@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.2.0: 2018-05-20
+
+* Update parsing for details, collections, similar
+* Fix and add tests for all of these
+* Expose previously unused category list util as api
+
 ### 0.1.12: 2018-05-12
 
 * Clean up some code here and there.

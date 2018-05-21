@@ -18,6 +18,7 @@ pip install play-scraper
 * [suggestions](#suggestions): Fetch a list of query string suggestions.
 * [search](#search): Fetch applications matching a search query.
 * [similar](#similar): Fetch an application's similar apps.
+* [categories](#categories): Fetch a list of available categories.
 
 #### details
 
@@ -33,34 +34,32 @@ Options:
 {
     'app_id': 'com.android.chrome',
     'category': ['COMMUNICATION'],
-    'content_rating': u'Everyone',
-    'current_version': u'Varies with device',
-    'description': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where ...',
-    'description_html': u'Browse fast on your Android phone and tablet with the Google Chrome browser you love on desktop. Pick up where you left off on your other devices with tab sync, search by voice, and save up to 50% of data usage while browsing. <br/>',
-    'developer': u'Google Inc.',
-    'developer_address': u'1600 Amphitheatre Parkway, Mountain View 94043',
+    'content_rating': ['Everyone'],
+    'current_version': 'Varies with device',
+    'description': 'Google Chrome is a fast, easy to use, and secure web browser. Designed for Android, Chrome brings you personalized news ...',
+    'description_html': 'Google Chrome is a fast, easy to ... Chrome web browser experience you love across all your devices.<br/> <br/> <b>Browse fast and type less.</b> ...',
+    'developer': 'Google LLC',
+    'developer_address': '1600 Amphitheatre Parkway, Mountain View 94043',
     'developer_email': 'apps-help@google.com',
     'developer_id': '5700313618786177705',
     'developer_url': 'http://www.google.com/chrome/android',
     'editors_choice': False,
     'free': True,
-    'histogram': { 1: 353226, 2: 159357, 3: 328319, 4: 738938, 5: 2691357},
+    'histogram': { 1: 672180, 2: 288519, 3: 735220, 4: 1560066, 5: 6033423},
     'iap': False,
     'iap_range': None,
-    'icon': 'https://lh3.ggpht.com/O0aW5qsyCkR2i7Bu-jUU1b5BWA_NygJ6ui4MgaAvL7gfqvVWqkOBscDaq4pn-vkwByUx',
-    'installs': [1000000000, 5000000000],
-    'interactive_elements': [u'Unrestricted Internet'],
+    'icon': 'https://lh3.googleusercontent.com/nYhPnY2I-e9rpqnid9u9aAODz4C04OycEGxqHG5vxFnA35OGmLMrrUmhM9eaHKJ7liB-',
+    'installs': '1,000,000,000+',
+    'interactive_elements': ['Unrestricted Internet'],
     'price': '0',
-    'recent_changes': u'Bug fixes and speedy performance improvements.',
-    'required_android_version': u'Varies with device',
-    'reviews': 4271197,
-    'score': 4.230531692504883,
-    'screenshots': [ 'https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h900-rw', ...],
-    'size': u'Varies with device',
-    'thumbnails': [ 'https://lh4.ggpht.com/6D21o4j_OJUnVCTARqcdajTmX_5_8UJtzVuN91smALZBuMq0p3MIvwZj2qofXeqmFIU=h310-rw', ...],
-    'title': u'Chrome Browser - Google',
-    'top_developer': True,
-    'updated': u'March 25, 2016',
+    'recent_changes': u"Thanks for choosing Chrome! You can now find your saved passwords more easily \u2013 just tap the new Search icon in Settings > Passwords. We've also included stability and performance improvements.",
+    'required_android_version': 'Varies with device',
+    'reviews': 9289408,
+    'score': '4.3',
+    'screenshots': [ 'https://lh3.googleusercontent.com/lKPDNfsO2QhJD9i77rGDTiH5ILjXlXwPsRi194hhkY4BsbaXbpCFrdjWvcU1zttUwqXz=w720-h310-rw', ...],
+    'size': 'Varies with device',
+    'title': 'Google Chrome: Fast & Secure',
+    'updated': 'May 10, 2018',
     'url': 'https://play.google.com/store/apps/details?id=com.android.chrome',
     'video': None
 }
@@ -86,26 +85,28 @@ Options:
         category='GAME_RACING',
         results=5,
         page=1)
-[ { 'app_id': 'com.gigabitgames.offroad',
-    'description': u'The most realistic off-road game on Android. Its your world, you conquer it.',
-    'developer': 'Gigabit Games',
-    'developer_id': '9169751687364421253',
+[ { 'app_id': 'blaze.andthemonstermachinesferr',
+    'description': 'Blaze The Monster Truck Mud Mountain Rescue - Monster Machines game for kids',
+    'developer': 'app Star',
+    'developer_id': 'app+Star',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/73m8eqn_YUzbTMV986wG2C_zd8_PNSR0GBxf_d6GKbBLa0gUA8OYy0dOP9PCKFYMyX0',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/cUk9UciJkqFUE4HVBiif9JUD8rWEXJCewG2JKVK9abWRaK3AMmIaSB61xlKGzIdw8w',
     'price': '0',
-    'score': '4.2',
-    'title': 'Gigabit Off-Road',
-    'url': 'https://play.google.com/store/apps/details?id=com.gigabitgames.offroad'},
-  { 'app_id': 'com.sbkgames.rallyracerdirt',
-    'description': u'Drift like a pro, race in dirt, hill climb, asphalt drift, be a rally racer.',
-    'developer': 'sbkgames',
-    'developer_id': None,
+    'score': '4.3',
+    'title': 'Blaze and the Monster Machines Free',
+    'url': 'https://play.google.com/store/apps/details?id=blaze.andthemonstermachinesferr'},
+  { 'app_id': 'com.notdoppler.earntodie2',
+    'description': 'Drive your car through a zombie apocalypse in this epic sequel to Earn to Die!',
+    'developer': 'Not Doppler',
+    'developer_id': 'Not+Doppler',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/BiONHFMzbVA32q5bvo9L1YHD4Ss02VSF5IZxCqWgdULZp2rKmeaMpBWRwMd2XlvxLw',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/PeYxYz56AltCaJaRu5OebqewOTqUoR9vU_jPavcphz1CywaU4d69My-cc9Stzx4DTTI',
     'price': '0',
-    'score': '4.2',
-    'title': 'Rally Racer Dirt',
-    'url': 'https://play.google.com/store/apps/details?id=com.sbkgames.rallyracerdirt'}, ...]
+    'score': '4.6',
+    'title': 'Earn to Die 2',
+    'url': 'https://play.google.com/store/apps/details?id=com.notdoppler.earntodie2'}, ...]
 ```
 
 #### developer
@@ -122,26 +123,28 @@ Options:
 ```python
 >>> import play_scraper
 >>> print play_scraper.developer('Disney', results=5)
-[ { 'app_id': 'com.disney.disneycrossyroad_goo',
-    'description': u'An all-new take on the ultimate 8-bit endless adventure to cross the road!',
+[ { 'app_id': 'com.disney.datg.videoplatforms.android.watchdc',
+    'description': 'Disney Channel, Disney XD & Disney Junior\u2019s new home for shows, games & live TV!',
     'developer': 'Disney',
-    'developer_id': None,
+    'developer_id': 'Disney',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/mHHQ-GA_hu8shAEtzj8trGBOJK7dtMrmV4XXvjl49MQbIDHytb8kQenB4IaUB9NvYA',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/C6CkMLr6s5bglWHr-2tH0Tdm138_6LCaevR14_fGV9kEPsoCF5t-L5pOQyOic4WsAnoU',
     'price': '0',
-    'score': '4.5',
-    'title': 'Disney Crossy Road',
-    'url': 'https://play.google.com/store/apps/details?id=com.disney.disneycrossyroad_goo'},
-  { 'app_id': 'com.disney.disneymoviesanywhere_goo',
-    'description': u'Watch Disney, Disney/Pixar, Marvel & Star Wars movies w/ Disney Movies Anywhere.',
+    'score': '4.3',
+    'title': 'DisneyNOW \u2013 TV Shows & Games',
+    'url': 'https://play.google.com/store/apps/details?id=com.disney.datg.videoplatforms.android.watchdc'},
+  { 'app_id': 'com.disney.wdw.android',
+    'description': 'Walt Disney World Resort maps, wait times, tickets, FastPass+, dining & more.',
     'developer': 'Disney',
-    'developer_id': None,
+    'developer_id': 'Disney',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/J75JRuJvlOQ9K5H7RpSyGu1q909Qy6GJs9RW51KlE2CvyfPX14SGG-HRGnsfDfIETfg',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/NERZ9v0bPh_RBFRAbJe9cgGvk_DDIQCyWJc0YQ6LhRSGC51tQErHa8Rs9oFmzPRb9KQ',
     'price': '0',
-    'score': '3.9',
-    'title': 'Disney Movies Anywhere',
-    'url': 'https://play.google.com/store/apps/details?id=com.disney.disneymoviesanywhere_goo'}, ...]
+    'score': '4.7',
+    'title': 'My Disney Experience',
+    'url': 'https://play.google.com/store/apps/details?id=com.disney.wdw.android'}, ...]
 ```
 
 #### suggestions
@@ -151,7 +154,7 @@ Fetch a list of autocompleted query suggestions.
 ```python
 >>> import play_scraper
 >>> print play_scraper.suggestions('cat')
-[u'cat games', u'cat simulator', u'cat sounds', u'cat games for cats']
+['cat games', 'cats', 'cat simulator', 'catan', 'cats in the cradle']
 ```
 
 #### search
@@ -167,26 +170,28 @@ Options:
 ```python
 >>> import play_scraper
 >>> print play_scraper.search('dogs', page=2)
-[ { 'app_id': 'jp.pascal.mydogmyroomfree',
-    'description': u'Take a picture of the room as you like, and keep a cute puppy in your own room!!',
-    'developer': 'pascal inc.',
-    'developer_id': None,
+[ { 'app_id': 'com.tivola.doghotel',
+    'description': 'Be head of your own hotel and care for labradors, terrier and many more dogs!',
+    'developer': 'Tivola',
+    'developer_id': '8927372468482477196',
     'free': True,
-    'icon': 'https://lh5.ggpht.com/WlGXYIHU0cljFIaNBloRHtznuBo3pAt4B1ynnfiXPTsjoqKDfX5Rxo9U15iDZXuRZe32',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/_PS_uqG8tjaqS014cN4bNUxQlHKsICWPW6bALReSrpK85CdI-ZkUOA3MT-vO20mVCP1w',
     'price': '0',
-    'score': '3.7',
-    'title': 'My Dog My Room Free',
-    'url': 'https://play.google.com/store/apps/details?id=jp.pascal.mydogmyroomfree'},
-  { 'app_id': 'com.sweefitstudios.drawdogs',
-    'description': u'An app that teaches you how to draw dogs step by step',
-    'developer': 'Sweefit Studios',
-    'developer_id': '8890723712967774017',
+    'score': '4.4',
+    'title': 'DogHotel : My Dog Boarding Kennel',
+    'url': 'https://play.google.com/store/apps/details?id=com.tivola.doghotel'},
+  { 'app_id': 'com.clan.of.dogs',
+    'description': 'Clan of Dogs 3D Animal Adventure Simulator',
+    'developer': 'Wild Foot Games',
+    'developer_id': '6061726228463739055',
     'free': True,
-    'icon': 'https://lh3.googleusercontent.com/qt6hpHGwu6-viUAKkw9nv3iH_IQYMvBfHwc1X-TbcjOOgbqH67K6SJITi64FzBhQRKk',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/JO2cxKk5L3onmu2dchAeRRZyWJuJ5q7veWenP7uSZfItcJLsq1pZPIEoDqc_QNOqp-Q',
     'price': '0',
-    'score': '4.3',
-    'title': 'How to Draw Dogs',
-    'url': 'https://play.google.com/store/apps/details?id=com.sweefitstudios.drawdogs'}, ...]
+    'score': '4.2',
+    'title': 'Clan of Dogs',
+    'url': 'https://play.google.com/store/apps/details?id=com.clan.of.dogs'}, ...]
 ```
 
 #### similar
@@ -203,25 +208,42 @@ Options:
 >>> import play_scraper
 >>> print play_scraper.similar('com.supercell.clashofclans', results=5)
 [ { 'app_id': 'com.supercell.clashroyale',
-    'description': u'Clash Royale is a real-time, head-to-head battle game set in the Clash Universe.',
+    'description': 'Clash Royale is a real-time, head-to-head battle game set in the Clash Universe.',
     'developer': 'Supercell',
     'developer_id': '6715068722362591614',
     'free': True,
+    'full_price': None,
     'icon': 'https://lh3.googleusercontent.com/K-MNjDiO2WwRNwJqPZu8Wd5eOmFEjLYkEEgjZlv35hTiua_VylRPb04Lig3YZXLERvI',
     'price': '0',
-    'score': '4.5',
+    'score': '4.6',
     'title': 'Clash Royale',
     'url': 'https://play.google.com/store/apps/details?id=com.supercell.clashroyale'},
-  { 'app_id': 'com.hcg.cok.gp',
-    'description': u'Clash of Kings - Build a Kingdom & fight in MMO combat to stand against the ages',
-    'developer': 'Elex Wireless',
-    'developer_id': None,
+  { 'app_id': 'com.supercell.boombeach',
+    'description': 'Storm the beach and win the day!',
+    'developer': 'Supercell',
+    'developer_id': '6715068722362591614',
     'free': True,
-    'icon': 'https://lh5.ggpht.com/wjNgsM2TGmbxbN-jDNAUNTIIq32OSx83Tx4Vl3jOudqzUEi1yTVCcMtnoGnZGGyXRA',
+    'full_price': None,
+    'icon': 'https://lh3.googleusercontent.com/sw4Zb0qt_0-Iqm4YHpXEaGhmj6e3GlHmYroBI8oBuBr4JpRnFF37VmMDaqLMT-MDvhg',
     'price': '0',
-    'score': '4.2',
-    'title': 'Clash of Kings',
-    'url': 'https://play.google.com/store/apps/details?id=com.hcg.cok.gp'}, ...]
+    'score': '4.5',
+    'title': 'Boom Beach',
+    'url': 'https://play.google.com/store/apps/details?id=com.supercell.boombeach'}, ...]
+```
+
+#### categories
+
+Fetch a list of available categories.
+
+```python
+>>> import play_scraper
+>>> play_scraper.categories()
+{'ANDROID_WEAR': { 'category_id': 'ANDROID_WEAR',
+                 'name': 'Wear OS by Google',
+                 'url': 'https://play.google.com/store/apps/category/ANDROID_WEAR'},
+ 'ART_AND_DESIGN': { 'category_id': 'ART_AND_DESIGN',
+                     'name': 'Art & Design',
+                     'url': 'https://play.google.com/store/apps/category/ART_AND_DESIGN'}, ...}
 ```
 
 ### Tests
