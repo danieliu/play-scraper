@@ -167,7 +167,7 @@ class SimilarTest(ScraperTestBase):
     def test_similar_ok(self):
         apps = self.s.similar('com.android.chrome')
 
-        self.assertEqual(48, len(apps))
+        self.assertGreater(len(apps), 0)
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
