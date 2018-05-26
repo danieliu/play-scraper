@@ -10,12 +10,12 @@ lint:
 publish:
 	pip install 'twine>=1.11.0'
 	twine upload dist/*
-	rm -fr build dist .egg play_scraper.egg-info
+	rm -rf build dist .egg play_scraper.egg-info
 
 publish-test:
 	pip install 'twine>=1.11.0'
 	twine upload -r test dist/*
-	rm -fr build dist .egg play_scraper.egg-info
+	rm -rf build dist .egg play_scraper.egg-info
 
 test:
 	python -m unittest discover

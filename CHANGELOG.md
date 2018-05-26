@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.1: 2018-05-26
+
+* Use requests[security] to fix SSL recursion errors
+
 ### 0.2.0: 2018-05-20
 
 * Update parsing for details, collections, similar
