@@ -20,6 +20,9 @@ publish-test:
 test:
 	python -m unittest discover
 
+test-all:
+	detox
+
 test-debug:
 	python -m unittest discover -v
 

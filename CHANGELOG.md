@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.3: 2018-06-24
+
+* Fix Python3 compatibility (basestring, unicode())
+
 ### 0.2.2: 2018-06-24
 
 * Use Python primitive types instead of BeautifulSoup4's `NavigableString`

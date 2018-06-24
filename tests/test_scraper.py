@@ -2,6 +2,11 @@
 
 import unittest
 
+try:
+    basestring
+except NameError:
+    basestring = (str, bytes)
+
 from play_scraper import settings
 from play_scraper.lists import CATEGORIES
 from play_scraper.scraper import PlayScraper

@@ -165,7 +165,7 @@ class PlayScraper(object):
                         developer_address = None
                     dev_data = {'developer_email': developer_email,
                                 'developer_url': developer_url,
-                                'developer_address': unicode(developer_address)}
+                                'developer_address': developer_address.strip()}
                     data.update(dev_data)
                     continue
                 else:
