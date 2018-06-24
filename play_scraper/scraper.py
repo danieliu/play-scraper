@@ -56,11 +56,11 @@ class PlayScraper(object):
             score = score.attrs['aria-label'].strip().split(' ')[1]
 
         try:
-            price = soup.select_one('span.display-price').string
+            price = soup.select_one('span.display-price').text
         except AttributeError:
             try:
                 # Pre-register apps are 'Coming Soon'
-                price = soup.select_one('a.price').string
+                price = soup.select_one('a.price').text
             except AttributeError:
                 # Country restricted, no price or buttons shown
                 price = None
@@ -68,7 +68,7 @@ class PlayScraper(object):
         full_price = None
         if price is not None:
             try:
-                full_price = soup.select_one('span.full-price').string
+                full_price = soup.select_one('span.full-price').text
             except AttributeError:
                 full_price = None
 
@@ -165,11 +165,11 @@ class PlayScraper(object):
                         developer_address = None
                     dev_data = {'developer_email': developer_email,
                                 'developer_url': developer_url,
-                                'developer_address': developer_address}
+                                'developer_address': unicode(developer_address)}
                     data.update(dev_data)
                     continue
                 else:
-                    value = value_div.string
+                    value = value_div.text
 
                 data[title_key] = value
         return data
@@ -180,7 +180,7 @@ class PlayScraper(object):
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app details
         """
-        title = soup.select_one('h1[itemprop="name"] span').string
+        title = soup.select_one('h1[itemprop="name"] span').text
         icon = (soup.select_one('img[alt="Cover art"]')
                     .attrs['src']
                     .split('=')[0])
@@ -519,7 +519,7 @@ class PlayScraper(object):
         for cat in category_links:
             url = urljoin(s.BASE_URL, cat.attrs['href'])
             category_id = url.split('/')[-1]
-            name = cat.string
+            name = cat.string.strip()
 
             if age in category_id:
                 category_id = 'FAMILY'

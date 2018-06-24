@@ -70,6 +70,12 @@ class DetailsTest(ScraperTestBase):
         self.assertEqual('1,000,000,000+', app_data['installs'])
         self.assertEqual('Google LLC', app_data['developer'])
 
+        # Ensure primitive types, not bs4 NavigableString
+        for k, v in app_data.items():
+            self.assertTrue(isinstance(
+                v,
+                (basestring, bool, dict, int, list, type(None))))
+
 
 class CollectionTest(ScraperTestBase):
     def test_non_detailed_collection(self):
@@ -78,6 +84,13 @@ class CollectionTest(ScraperTestBase):
         self.assertEqual(2, len(apps))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+
+        for app in apps:
+            # Ensure primitive types, not bs4 NavigableString
+            for k, v in app.items():
+                self.assertTrue(isinstance(
+                    v,
+                    (basestring, bool, dict, int, list, type(None))))
 
     def test_default_num_results(self):
         apps = self.s.collection('NEW_FREE', page=1)

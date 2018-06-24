@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.2: 2018-06-24
+
+* Use Python primitive types instead of BeautifulSoup4's `NavigableString`
+
 ### 0.2.1: 2018-05-26
 
 * Use requests[security] to fix SSL recursion errors
