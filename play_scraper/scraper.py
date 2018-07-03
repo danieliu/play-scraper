@@ -163,9 +163,12 @@ class PlayScraper(object):
                         # Set the address to None for 'not found'
                         # The address div should just be a string, no name attr
                         developer_address = None
+                    if developer_address is not None:
+                        developer_address = developer_address.strip()
+
                     dev_data = {'developer_email': developer_email,
                                 'developer_url': developer_url,
-                                'developer_address': developer_address.strip()}
+                                'developer_address': developer_address}
                     data.update(dev_data)
                     continue
                 else:

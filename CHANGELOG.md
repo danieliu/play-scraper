@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.2.4: 2018-07-02
+
+* None type check before calling `developer_address.strip()`
+* Set test to check >= because number of apps fetched non-deterministic since we actually scrape
+
 ### 0.2.3: 2018-06-24
 
 * Fix Python3 compatibility (basestring, unicode())

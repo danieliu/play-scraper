@@ -143,7 +143,7 @@ class DeveloperTest(ScraperTestBase):
         # 'CrowdCompass by Cvent' has ~273 apps
         apps = self.s.developer('CrowdCompass by Cvent', results=120)
 
-        self.assertEqual(120, len(apps))
+        self.assertGreaterEqual(len(apps), 100)
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
