@@ -64,6 +64,41 @@ class ScraperTestBase(unittest.TestCase):
         self.s = PlayScraper()
 
 
+class PlayScraperTest(unittest.TestCase):
+    def test_init_with_defaults(self):
+        s = PlayScraper()
+        self.assertEqual(settings.BASE_URL, s._base_url)
+        self.assertEqual(settings.SUGGESTION_URL, s._suggestion_url)
+        self.assertEqual(settings.SEARCH_URL, s._search_url)
+        self.assertEqual(settings.PAGE_TOKENS, s._pagtok)
+        self.assertEqual('en', s.language)
+        self.assertEqual('us', s.geolocation)
+        self.assertDictEqual({'hl': 'en',
+                              'gl': 'us'},
+                             s.params)
+
+    def test_init_with_language_and_geolocation(self):
+        s = PlayScraper(hl='ko', gl='kr')
+        self.assertEqual('ko', s.language)
+        self.assertEqual('kr', s.geolocation)
+        self.assertDictEqual({'hl': 'ko',
+                              'gl': 'kr'},
+                             s.params)
+
+
+    def test_invalid_language_code_raises(self):
+        with self.assertRaises(ValueError) as e:
+            s = PlayScraper(hl='invalid')
+        self.assertEqual('invalid is not a valid language interface code.',
+                         str(e.exception))
+
+    def test_invalid_language_code_raises(self):
+        with self.assertRaises(ValueError) as e:
+            s = PlayScraper(gl='invalid')
+        self.assertEqual('invalid is not a valid geolocation country code.',
+                         str(e.exception))
+
+
 class DetailsTest(ScraperTestBase):
     def test_fetching_app_with_all_details(self):
         app_data = self.s.details('com.android.chrome')

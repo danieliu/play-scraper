@@ -17,6 +17,7 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
 from play_scraper import settings as s
+from play_scraper.defs import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
 from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
     build_collection_url,
@@ -28,7 +29,18 @@ from play_scraper.utils import (
 
 
 class PlayScraper(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        self.language = kwargs.get('hl', 'en')
+        if self.language not in HL_LANGUAGE_CODES:
+            raise ValueError('{hl} is not a valid language interface code.'.format(
+                hl=self.language))
+        self.geolocation = kwargs.get('gl', 'us')
+        if self.geolocation not in GL_COUNTRY_CODES:
+            raise ValueError('{gl} is not a valid geolocation country code.'.format(
+                gl=self.geolocation))
+        self.params = {'hl': self.language,
+                       'gl': self.geolocation}
+
         self._base_url = s.BASE_URL
         self._suggestion_url = s.SUGGESTION_URL
         self._search_url = s.SEARCH_URL
@@ -339,7 +351,7 @@ class PlayScraper(object):
         url = build_url('details', app_id)
 
         try:
-            response = send_request('GET', url)
+            response = send_request('GET', url, params=self.params)
             soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
         except requests.exceptions.HTTPError as e:
             raise ValueError('Invalid application ID: {app}. {error}'.format(
@@ -353,7 +365,7 @@ class PlayScraper(object):
         return app_json
 
     def collection(self, collection_id, category_id=None, results=None,
-                   page=None, age=None, detailed=False):
+                   page=None, age=None, detailed=False, **kwargs):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
@@ -385,13 +397,12 @@ class PlayScraper(object):
         if page * results > 500:
             raise ValueError('Start (page * results) cannot be greater than 500.')
 
-        params = {}
         if category.startswith('FAMILY') and age is not None:
-            params['age'] = AGE_RANGE[age]
+            self.params['age'] = AGE_RANGE[age]
 
         url = build_collection_url(category, collection_name)
         data = generate_post_data(results, page)
-        response = send_request('POST', url, data, params)
+        response = send_request('POST', url, data, self.params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -402,7 +413,8 @@ class PlayScraper(object):
 
         return apps
 
-    def developer(self, developer, results=None, page=None, detailed=False):
+    def developer(self, developer, results=None, page=None, detailed=False,
+                  **kwargs):
         """Sends a POST request and retrieves a list of the developer's
         published applications on the Play Store.
 
@@ -424,7 +436,7 @@ class PlayScraper(object):
 
         url = build_url('developer', developer)
         data = generate_post_data(results, 0, pagtok)
-        response = send_request('POST', url, data)
+        response = send_request('POST', url, data, self.params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -445,19 +457,19 @@ class PlayScraper(object):
         if not query:
             raise ValueError("Cannot get suggestions for an empty query.")
 
-        params = {
+        self.params.update({
             'json': 1,
             'c': 0,
-            'hl': 'en',
-            'gl': 'us',
-            'query': query
-        }
+            'query': query,
+        })
 
-        response = send_request('GET', self._suggestion_url, params=params)
+        response = send_request('GET',
+                                self._suggestion_url,
+                                params=self.params)
         suggestions = [q['s'] for q in response.json()]
         return suggestions
 
-    def search(self, query, page=None, detailed=False):
+    def search(self, query, page=None, detailed=False, **kwargs):
         """Sends a POST request and retrieves a list of applications matching
         the query term(s).
 
@@ -473,12 +485,12 @@ class PlayScraper(object):
         pagtok = self._pagtok[page]
         data = generate_post_data(0, 0, pagtok)
 
-        params = {
+        self.params.update({
             'q': quote_plus(query),
-            'c': 'apps'
-        }
+            'c': 'apps',
+        })
 
-        response = send_request('POST', self._search_url, data, params)
+        response = send_request('POST', self._search_url, data, self.params)
         soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
@@ -489,7 +501,7 @@ class PlayScraper(object):
 
         return apps
 
-    def similar(self, app_id, detailed=False):
+    def similar(self, app_id, detailed=False, **kwargs):
         """Sends a GET request, follows the redirect, and retrieves a list of
         applications similar to the specified app.
 
@@ -498,7 +510,10 @@ class PlayScraper(object):
         :return: a list of similar apps
         """
         url = build_url('similar', app_id)
-        response = send_request('GET', url, allow_redirects=True)
+        response = send_request('GET',
+                                url,
+                                params=self.params,
+                                allow_redirects=True)
         soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
 
         if detailed:
@@ -518,7 +533,7 @@ class PlayScraper(object):
         categories = {}
         strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
 
-        response = send_request('GET', s.BASE_URL)
+        response = send_request('GET', s.BASE_URL, params=self.params)
         soup = BeautifulSoup(response.content,
                              'lxml',
                              from_encoding='utf8',
