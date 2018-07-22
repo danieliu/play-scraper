@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.0: 2018-07-22
+
+* Add option to change the `hl` and `gl` query parameters for specifying language and geolocation (country), respectively.
+
 ### 0.2.5: 2018-07-22
 
 * Raise when passed a developer_id instead of the developer name to `.developer()`
