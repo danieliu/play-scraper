@@ -154,6 +154,30 @@ class DeveloperTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
+    def test_developer_parameter_string_digits_invalid(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.developer('5700313618786177705')
+        self.assertEqual('Parameter \'developer\' must be the developer name, not the developer id.',
+                         str(e.exception))
+
+    def test_developer_parameter_int_invalid(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.developer(1234)
+        self.assertEqual('Parameter \'developer\' must be the developer name, not the developer id.',
+                         str(e.exception))
+
+    def test_developer_parameter_long_invalid(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.developer(5700313618786177705)
+        self.assertEqual('Parameter \'developer\' must be the developer name, not the developer id.',
+                         str(e.exception))
+
+    def test_developer_parameter_float_invalid(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.developer(57003136187.86177705)
+        self.assertEqual('Parameter \'developer\' must be the developer name, not the developer id.',
+                         str(e.exception))
+
     def test_page_out_of_range(self):
         with self.assertRaises(ValueError):
             self.s.developer('CrowdCompass by Cvent',
@@ -182,6 +206,7 @@ class SearchTest(ScraperTestBase):
 
 
 class SimilarTest(ScraperTestBase):
+    @unittest.skip('2018-07-22 play store may have removed this')
     def test_similar_ok(self):
         apps = self.s.similar('com.android.chrome')
 

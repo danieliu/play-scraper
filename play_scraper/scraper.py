@@ -8,6 +8,10 @@ try:
     from urlparse import urljoin
 except ImportError:
     from urllib.parse import urljoin, quote_plus
+try:
+    basestring
+except NameError:
+    basestring = str
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
@@ -408,6 +412,9 @@ class PlayScraper(object):
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
+        if not isinstance(developer, basestring) or developer.isdigit():
+            raise ValueError('Parameter \'developer\' must be the developer name, not the developer id.')
+
         results = s.DEV_RESULTS if results is None else results
         page = 0 if page is None else page
         page_num = (results // 20) * page
