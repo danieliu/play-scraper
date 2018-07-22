@@ -200,7 +200,7 @@ class PlayScraper(object):
         :return: a dictionary of app details
         """
         title = soup.select_one('h1[itemprop="name"] span').text
-        icon = (soup.select_one('img[alt="Cover art"]')
+        icon = (soup.select_one('.dQrBL img.ujDFqe')
                     .attrs['src']
                     .split('=')[0])
         editors_choice = bool(
@@ -213,7 +213,7 @@ class PlayScraper(object):
         # Let the user handle modifying the URL to fetch different resolutions
         # Removing the end `=w720-h310-rw` doesn't seem to give original res?
         screenshots = [img.attrs['src']
-                       for img in soup.select('img[alt="Screenshot Image"]')]
+                       for img in soup.select('button.NIc6yf img.lxGQyd')]
 
         try:
             video = (soup.select_one('button[data-trailer-url^="https"]')

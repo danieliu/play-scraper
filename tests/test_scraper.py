@@ -58,6 +58,21 @@ DETAIL_KEYS = {
     'video',
 }
 
+ADDITIONAL_INFO_KEYS = {
+    'content_rating',
+    'current_version',
+    'developer',
+    'developer_address',
+    'developer_email',
+    'developer_url',
+    'iap_range',
+    'installs',
+    'interactive_elements',
+    'required_android_version',
+    'size',
+    'updated',
+}
+
 
 class ScraperTestBase(unittest.TestCase):
     def setUp(self):
@@ -116,6 +131,19 @@ class DetailsTest(ScraperTestBase):
                 v,
                 (basestring, bool, dict, int, list, type(None))))
 
+    def test_fetching_app_in_spanish(self):
+        s = PlayScraper(hl='es', gl='es')
+        app_data = s.details('com.android.chrome')
+        self.assertTrue(all(key in app_data for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(app_data.keys()))
+        self.assertEqual('com.android.chrome', app_data['app_id'])
+        self.assertEqual(['COMMUNICATION'], app_data['category'])
+
+        # additional details are all None because we currently hardcode an
+        # English mapping for the various additional info section titles.
+        self.assertTrue(all([app_data[x] is None
+                            for x in ADDITIONAL_INFO_KEYS]))
+
 
 class CollectionTest(ScraperTestBase):
     def test_non_detailed_collection(self):
@@ -161,6 +189,14 @@ class CollectionTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.collection('TOP_PAID', 'LIFESTYLE', results=5)
+
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+        self.assertEqual(5, len(apps))
+
     def test_invalid_collection_id(self):
         with self.assertRaises(ValueError):
             self.s.collection('invalid_collection_id')
@@ -184,6 +220,14 @@ class DeveloperTest(ScraperTestBase):
 
     def test_over_max_results_fetches_five(self):
         apps = self.s.developer('CrowdCompass by Cvent', results=121)
+
+        self.assertEqual(5, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.developer('Google LLC', results=5)
 
         self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
@@ -230,10 +274,24 @@ class SuggestionTest(ScraperTestBase):
 
         self.assertGreater(len(suggestions), 0)
 
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        suggestions = s.suggestions('dog')
+
+        self.assertGreater(len(suggestions), 0)
+
 
 class SearchTest(ScraperTestBase):
     def test_basic_search(self):
         apps = self.s.search('cats')
+
+        self.assertEqual(20, len(apps))
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.search('dog')
 
         self.assertEqual(20, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
@@ -249,6 +307,15 @@ class SimilarTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
+    @unittest.skip('2018-07-23 play store may have removed this')
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.similar('com.android.chrome')
+
+        self.assertGreater(len(apps), 0)
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
 
 class CategoryTest(ScraperTestBase):
     def test_categories_ok(self):
@@ -256,6 +323,12 @@ class CategoryTest(ScraperTestBase):
 
         # This will fail when categories are removed over time, but not if
         # new categories are added.
+        self.assertTrue(all(key in categories for key in CATEGORIES))
+
+    def test_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        categories = s.categories()
+
         self.assertTrue(all(key in categories for key in CATEGORIES))
 
 
