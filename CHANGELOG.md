@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.1: 2018-07-22
+
+* Quick fix on import error in `scraper.py`
+
 ### 0.3.0: 2018-07-22
 
 * Add option to change the `hl` and `gl` query parameters for specifying language and geolocation (country), respectively.

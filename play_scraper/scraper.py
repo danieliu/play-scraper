@@ -17,7 +17,7 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
 from play_scraper import settings as s
-from play_scraper.defs import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
+from play_scraper.constants import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
 from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
     build_collection_url,
