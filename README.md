@@ -28,6 +28,7 @@ Options:
 
 * `app_id` the app id to get, e.g. `com.android.chrome` for Google Chrome.
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -80,6 +81,7 @@ Options:
 * `age` (default None) an [age range](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L67) to filter by. (Only for FAMILY categories)
 * `detailed` (default False) if True, sends a request per app to fetch the full [details](#details).
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -124,6 +126,7 @@ Options:
 * `page` (default 0) the page number to fetch. Limit: `0 < (results // 20) * page < 12`
 * `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -160,6 +163,7 @@ Fetch a list of autocompleted query suggestions.
 Options:
 
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -178,6 +182,7 @@ Options:
 * `page` (default 0, max 12) page number of results to retrieve.
 * `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -217,6 +222,7 @@ Options:
 * `results` (default 24, max 60) the number of apps to fetch.
 * `detailed` (default False) if True, sends a request per app to fetch the full details as in [details](#details).
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python
@@ -253,6 +259,7 @@ Fetch a list of available categories.
 Options:
 
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
+    * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed
 * `gl` (default `us` for United States) the [country code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L87) to receive results based from a specific country
 
 ```python

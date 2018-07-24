@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.2: 2018-07-23
+
+* Avoid using the `alt` attribute as a selector because specifying a language will change the value.
+
 ### 0.3.1: 2018-07-22
 
 * Quick fix on import error in `scraper.py`
