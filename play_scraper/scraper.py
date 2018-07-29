@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 import re
 try:
@@ -116,7 +115,6 @@ class PlayScraper(object):
         # distinguishing selectors available; each section's markup is nearly
         # identical, so we get the values with a similar function.
         section_titles_divs = [x for x in soup.select('div.hAyfc div.BgcNfc')]
-        get_value_span = lambda x: x.next_sibling.select_one('span.htlgb')
 
         title_normalization = {
             'Updated': 'updated',
@@ -150,7 +148,7 @@ class PlayScraper(object):
             section_title = title_div.string
             if section_title in title_normalization:
                 title_key = title_normalization[section_title]
-                value_div = get_value_span(title_div)
+                value_div = title_div.next_sibling.select_one('span.htlgb')
 
                 if title_key == 'content_rating':
                     # last string in list is 'Learn more' link
@@ -231,7 +229,7 @@ class PlayScraper(object):
         else:
             description = description_html = None
 
-       # Reviews & Ratings
+        # Reviews & Ratings
         try:
             score = soup.select_one('div.BHMmbe').text
         except AttributeError:
@@ -250,7 +248,6 @@ class PlayScraper(object):
                 histogram[5 - i] = num_ratings[i]
         except AttributeError:
             reviews = 0
-
 
         try:
             changes_soup = soup.select('div[itemprop="description"] content')[1]
@@ -505,7 +502,7 @@ class PlayScraper(object):
         """Sends a GET request, follows the redirect, and retrieves a list of
         applications similar to the specified app.
 
-        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param app_id: app to retrieve details from, e.g. 'com.nintendo.zaaa'
         :param detailed: if True, sends request per app for its full detail
         :return: a list of similar apps
         """

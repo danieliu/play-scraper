@@ -24,15 +24,15 @@ class BasicSetup(unittest.TestCase):
 class TestBuildUrl(unittest.TestCase):
     def test_building_app_url(self):
         expected = 'https://play.google.com/store/apps/details?id=com.facebook.orca'
-        self.assertEqual(build_url('details', 'com.facebook.orca'), expected)
+        self.assertEqual(expected, build_url('details', 'com.facebook.orca'))
 
     def test_building_simple_dev_name(self):
         expected = 'https://play.google.com/store/apps/developer?id=Disney'
-        self.assertEqual(build_url('developer', 'Disney'), expected)
+        self.assertEqual(expected, build_url('developer', 'Disney'))
 
     def test_building_multiple_word_dev_name(self):
         expected = 'https://play.google.com/store/apps/developer?id=SQUARE+ENIX+INC'
-        self.assertEqual(build_url('developer', 'SQUARE ENIX INC'), expected)
+        self.assertEqual(expected, build_url('developer', 'SQUARE ENIX INC'))
 
 
 class TestBuildListUrl(BasicSetup):
@@ -46,12 +46,14 @@ class TestBuildListUrl(BasicSetup):
 
     def test_list_url_only_collection(self):
         expected = 'https://play.google.com/store/apps/collection/topselling_free'
-        self.assertEqual(build_collection_url(collection=self.collection), expected)
+        self.assertEqual(expected,
+                         build_collection_url(collection=self.collection))
 
     def test_list_url_both_args(self):
         expected = 'https://play.google.com/store/apps/category/GAME_ACTION/collection/topselling_free'
-        self.assertEqual(build_collection_url(
-            category=self.category, collection=self.collection), expected)
+        self.assertEqual(expected,
+                         build_collection_url(category=self.category,
+                                              collection=self.collection))
 
 
 class TestGeneratePostData(unittest.TestCase):
@@ -109,6 +111,3 @@ class TestSendRequest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.url, expected_url)
-
-if __name__ == '__main__':
-    unittest.main()

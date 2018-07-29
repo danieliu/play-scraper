@@ -3,13 +3,11 @@
 import logging
 try:
     from urllib import quote_plus
-    from urlparse import urljoin
 except ImportError:
-    from urllib.parse import urljoin, quote_plus
+    from urllib.parse import quote_plus
 
 import requests
 import grequests
-from bs4 import BeautifulSoup, SoupStrainer
 
 from play_scraper import settings as s
 

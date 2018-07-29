@@ -100,16 +100,15 @@ class PlayScraperTest(unittest.TestCase):
                               'gl': 'kr'},
                              s.params)
 
-
     def test_invalid_language_code_raises(self):
         with self.assertRaises(ValueError) as e:
-            s = PlayScraper(hl='invalid')
+            PlayScraper(hl='invalid')
         self.assertEqual('invalid is not a valid language interface code.',
                          str(e.exception))
 
-    def test_invalid_language_code_raises(self):
+    def test_invalid_geolocation_code_raises(self):
         with self.assertRaises(ValueError) as e:
-            s = PlayScraper(gl='invalid')
+            PlayScraper(gl='invalid')
         self.assertEqual('invalid is not a valid geolocation country code.',
                          str(e.exception))
 
@@ -175,7 +174,10 @@ class CollectionTest(ScraperTestBase):
         self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
     def test_family_with_age_collection(self):
-        apps = self.s.collection('TOP_FREE', 'FAMILY', results=1, age='SIX_EIGHT')
+        apps = self.s.collection('TOP_FREE',
+                                 'FAMILY',
+                                 results=1,
+                                 age='SIX_EIGHT')
 
         self.assertEqual(len(apps), 1)
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
@@ -299,7 +301,6 @@ class SearchTest(ScraperTestBase):
 
 
 class SimilarTest(ScraperTestBase):
-    @unittest.skip('2018-07-22 play store may have removed this')
     def test_similar_ok(self):
         apps = self.s.similar('com.android.chrome')
 
@@ -307,7 +308,6 @@ class SimilarTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
-    @unittest.skip('2018-07-23 play store may have removed this')
     def test_different_language_and_country(self):
         s = PlayScraper(hl='da', gl='dk')
         apps = s.similar('com.android.chrome')
@@ -330,7 +330,3 @@ class CategoryTest(ScraperTestBase):
         categories = s.categories()
 
         self.assertTrue(all(key in categories for key in CATEGORIES))
-
-
-if __name__ == '__main__':
-    unittest.main()
