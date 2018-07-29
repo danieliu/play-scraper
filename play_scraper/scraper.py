@@ -102,15 +102,14 @@ class PlayScraper(object):
         """
         if (collection_id not in COLLECTIONS and
                 not collection_id.startswith('promotion')):
-            raise ValueError('Invalid collection_id.')
-        if collection_id in COLLECTIONS:
-            collection_name = COLLECTIONS[collection_id]
-        else:
-            collection_name = collection_id
+            raise ValueError('Invalid collection_id \'{collection}\'.'.format(
+                collection=collection_id))
+        collection_name = COLLECTIONS.get(collection_id) or collection_id
 
         category = '' if category_id is None else CATEGORIES.get(category_id)
         if category is None:
-            raise ValueError('Invalid category_id.')
+            raise ValueError('Invalid category_id \'{category}\'.'.format(
+                category=category_id))
 
         results = s.NUM_RESULTS if results is None else results
         if results > 120:
@@ -201,9 +200,10 @@ class PlayScraper(object):
         :param detailed: if True, sends request per app for its full detail
         :return: a list of apps matching search terms
         """
-        page = 0 if page is None else page
+        page = 0 if page is None else int(page)
         if page > len(self._pagtok) - 1:
-            raise ValueError('Page out of range. Please choose a number between 0 - 12')
+            raise ValueError('Parameter \'page\' ({page}) must be between 0 and 12.'.format(
+                page=page))
 
         pagtok = self._pagtok[page]
         data = generate_post_data(0, 0, pagtok)

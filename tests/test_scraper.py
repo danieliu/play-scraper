@@ -169,7 +169,7 @@ class CollectionTest(ScraperTestBase):
     def test_detailed_collection(self):
         apps = self.s.collection('TOP_FREE', results=1, detailed=True)
 
-        self.assertEqual(len(apps), 1)
+        self.assertEqual(1, len(apps))
         self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
         self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
@@ -179,7 +179,7 @@ class CollectionTest(ScraperTestBase):
                                  results=1,
                                  age='SIX_EIGHT')
 
-        self.assertEqual(len(apps), 1)
+        self.assertEqual(1, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
@@ -195,13 +195,33 @@ class CollectionTest(ScraperTestBase):
         s = PlayScraper(hl='da', gl='dk')
         apps = s.collection('TOP_PAID', 'LIFESTYLE', results=5)
 
+        self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
-        self.assertEqual(5, len(apps))
 
     def test_invalid_collection_id(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as e:
             self.s.collection('invalid_collection_id')
+        self.assertEqual('Invalid collection_id \'invalid_collection_id\'.',
+                         str(e.exception))
+
+    def test_invalid_category_id(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.collection('TOP_PAID', 'invalid_category_id')
+        self.assertEqual('Invalid category_id \'invalid_category_id\'.',
+                         str(e.exception))
+
+    def test_invalid_num_results_over_120(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.collection('TOP_PAID', 'LIFESTYLE', results=121)
+        self.assertEqual('Number of results cannot be more than 120.',
+                         str(e.exception))
+
+    def test_invalid_page_x_results_over_500(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.collection('TOP_PAID', 'LIFESTYLE', results=120, page=5)
+        self.assertEqual('Start (page * results) cannot be greater than 500.',
+                         str(e.exception))
 
 
 class DeveloperTest(ScraperTestBase):
@@ -226,6 +246,13 @@ class DeveloperTest(ScraperTestBase):
         self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_fetch_developer_apps_detailed(self):
+        apps = self.s.developer('Disney', results=3, detailed=True)
+
+        self.assertEqual(3, len(apps))
+        self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
     def test_different_language_and_country(self):
         s = PlayScraper(hl='da', gl='dk')
@@ -291,6 +318,13 @@ class SearchTest(ScraperTestBase):
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
+    def test_search_with_app_detailed(self):
+        apps = self.s.search('cats', detailed=True)
+
+        self.assertEqual(20, len(apps))
+        self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
+
     def test_different_language_and_country(self):
         s = PlayScraper(hl='da', gl='dk')
         apps = s.search('dog')
@@ -298,6 +332,12 @@ class SearchTest(ScraperTestBase):
         self.assertEqual(20, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_page_out_of_range_not_between_0_and_12(self):
+        with self.assertRaises(ValueError) as e:
+            self.s.search('dog', page=13)
+        self.assertEqual('Parameter \'page\' (13) must be between 0 and 12.',
+                         str(e.exception))
 
 
 class SimilarTest(ScraperTestBase):
@@ -307,6 +347,13 @@ class SimilarTest(ScraperTestBase):
         self.assertGreater(len(apps), 0)
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+
+    def test_similar_with_app_detailed(self):
+        apps = self.s.similar('com.android.chrome', detailed=True)
+
+        self.assertGreater(len(apps), 0)
+        self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
     def test_different_language_and_country(self):
         s = PlayScraper(hl='da', gl='dk')
