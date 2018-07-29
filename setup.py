@@ -33,11 +33,12 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
-        'beautifulsoup4>=4.4.1',
-        'grequests>=0.3.0',
-        'lxml>=3.6.0',
-        'requests[security]>=2.9.1',
+        'beautifulsoup4==4.4.1',
+        'lxml==3.6.0',
+        'requests-futures==0.9.7',
+        'requests[security]==2.9.1',
     ],
 )
