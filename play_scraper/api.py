@@ -11,18 +11,18 @@ play_scraper.api
 from play_scraper import scraper
 
 
-def details(app_id, **kwargs):
+def details(app_id, hl='en', gl='us'):
     """Sends a GET request to the app's info page, parses the app's details, and
     returns them as a dict.
 
     :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
     :return: a dictionary of app details
     """
-    s = scraper.PlayScraper(**kwargs)
+    s = scraper.PlayScraper(hl, gl)
     return s.details(app_id)
 
 
-def collection(collection, category=None, **kwargs):
+def collection(collection, category=None, hl='en', gl='us', **kwargs):
     """Sends a POST request to the collection url, gets each app's details, and
     returns them in a list.
 
@@ -37,11 +37,11 @@ def collection(collection, category=None, **kwargs):
     :param detailed: if True, sends request per app for full detail
     :return: a list of app dictionaries
     """
-    s = scraper.PlayScraper(**kwargs)
+    s = scraper.PlayScraper(hl, gl)
     return s.collection(collection, category, **kwargs)
 
 
-def developer(developer, **kwargs):
+def developer(developer, hl='en', gl='us', **kwargs):
     """Sends a POST request to the developer's page, extracts their apps' basic
     info, and returns them in a list.
 
@@ -51,22 +51,22 @@ def developer(developer, **kwargs):
     :param detailed: if True, sends request per app for full detail
     :return: a list of app dictionaries
     """
-    s = scraper.PlayScraper(**kwargs)
+    s = scraper.PlayScraper(hl, gl)
     return s.developer(developer, **kwargs)
 
 
-def suggestions(query, **kwargs):
+def suggestions(query, hl='en', gl='us'):
     """Sends a GET request to the Play Store's suggestion API and returns up to
     five autocompleted suggested query strings in a list.
 
     :param query: the query string to get autocomplete suggestions
     :return: a list of suggestion strings
     """
-    s = scraper.PlayScraper(**kwargs)
+    s = scraper.PlayScraper(hl, gl)
     return s.suggestions(query)
 
 
-def search(query, **kwargs):
+def search(query, hl='en', gl='us'):
     """Sends a POST request and retrieves a list of applications matching
     the query term(s).
 
@@ -75,11 +75,11 @@ def search(query, **kwargs):
     :param detailed: if True, sends request per app for its full detail
     :return: a list of apps matching search terms
     """
-    s = scraper.PlayScraper(**kwargs)
-    return s.search(query, **kwargs)
+    s = scraper.PlayScraper(hl, gl)
+    return s.search(query)
 
 
-def similar(app_id, **kwargs):
+def similar(app_id, hl='en', gl='us'):
     """Sends a GET request, follows the redirect, and retrieves a list of
     applications similar to the specified app.
 
@@ -87,15 +87,15 @@ def similar(app_id, **kwargs):
     :param detailed: if True, sends request per app for its full detail
     :return: a list of similar apps
     """
-    s = scraper.PlayScraper(**kwargs)
-    return s.similar(app_id, **kwargs)
+    s = scraper.PlayScraper(hl, gl)
+    return s.similar(app_id)
 
 
-def categories(**kwargs):
+def categories(hl='en', gl='us'):
     """Sends a GET request to the front page (app store base url), parses and
     returns a list of all available categories.
 
     Note: May contain some promotions, e.g. "Popular Characters"
     """
-    s = scraper.PlayScraper(**kwargs)
+    s = scraper.PlayScraper(hl, gl)
     return s.categories()

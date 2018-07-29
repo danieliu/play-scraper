@@ -29,12 +29,12 @@ from play_scraper.utils import (
 
 
 class PlayScraper(object):
-    def __init__(self, **kwargs):
-        self.language = kwargs.get('hl', 'en')
+    def __init__(self, hl='en', gl='us'):
+        self.language = hl
         if self.language not in HL_LANGUAGE_CODES:
             raise ValueError('{hl} is not a valid language interface code.'.format(
                 hl=self.language))
-        self.geolocation = kwargs.get('gl', 'us')
+        self.geolocation = gl
         if self.geolocation not in GL_COUNTRY_CODES:
             raise ValueError('{gl} is not a valid geolocation country code.'.format(
                 gl=self.geolocation))
@@ -88,7 +88,7 @@ class PlayScraper(object):
         return app_json
 
     def collection(self, collection_id, category_id=None, results=None,
-                   page=None, age=None, detailed=False, **kwargs):
+                   page=None, age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
@@ -135,8 +135,7 @@ class PlayScraper(object):
 
         return apps
 
-    def developer(self, developer, results=None, page=None, detailed=False,
-                  **kwargs):
+    def developer(self, developer, results=None, page=None, detailed=False):
         """Sends a POST request and retrieves a list of the developer's
         published applications on the Play Store.
 
@@ -191,7 +190,7 @@ class PlayScraper(object):
         suggestions = [q['s'] for q in response.json()]
         return suggestions
 
-    def search(self, query, page=None, detailed=False, **kwargs):
+    def search(self, query, page=None, detailed=False):
         """Sends a POST request and retrieves a list of applications matching
         the query term(s).
 
