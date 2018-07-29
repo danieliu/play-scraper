@@ -51,7 +51,7 @@
 
 ### 0.1.10: 2016-04-27
 
-* Price not availble (due to country restrictions?) and better handling with pre-register apps
+* Price not available (due to country restrictions?) and better handling with pre-register apps
 
 ### 0.1.9: 2016-04-26
 
