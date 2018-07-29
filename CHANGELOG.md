@@ -1,5 +1,12 @@
 # Changelog
 
+### 0.4.0: 2018-07-28
+
+* Replace `grequests` with `requests-futures`
+* Include Python 3.7 in multiversion testing
+* Moved parsing functions into utils
+* Add test coverage
+
 ### 0.3.2: 2018-07-23
 
 * Avoid using the `alt` attribute as a selector because specifying a language will change the value.
