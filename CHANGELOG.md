@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.4.1: 2018-08-12
+
+* Remove `**kwargs` in favor of specified kwargs
+* Update required `lxml` version
+
 ### 0.4.0: 2018-07-28
 
 * Replace `grequests` with `requests-futures`
