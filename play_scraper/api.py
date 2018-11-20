@@ -66,7 +66,7 @@ def suggestions(query, hl='en', gl='us'):
     return s.suggestions(query)
 
 
-def search(query, hl='en', gl='us'):
+def search(query, page=None, detailed=False, hl='en', gl='us'):
     """Sends a POST request and retrieves a list of applications matching
     the query term(s).
 
@@ -76,10 +76,10 @@ def search(query, hl='en', gl='us'):
     :return: a list of apps matching search terms
     """
     s = scraper.PlayScraper(hl, gl)
-    return s.search(query)
+    return s.search(query, page, detailed)
 
 
-def similar(app_id, hl='en', gl='us'):
+def similar(app_id, detailed=False, hl='en', gl='us'):
     """Sends a GET request, follows the redirect, and retrieves a list of
     applications similar to the specified app.
 
