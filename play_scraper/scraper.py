@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -246,7 +247,7 @@ class PlayScraper(object):
 
         return apps
 
-    def categories(self):
+    def categories(self, purge_non_categories=False):
         """Sends a GET request to the front page (app store base url), parses
         and returns a list of all available categories.
 
@@ -274,6 +275,9 @@ class PlayScraper(object):
                 name = 'Family'
 
             if category_id not in categories:
+                if purge_non_categories and '/store/apps/category/' not in url:
+                    continue
+                    
                 categories[category_id] = {
                     'name': name,
                     'url': url,
