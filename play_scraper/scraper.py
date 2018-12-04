@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from json import loads, dumps
+
+from play_scraper.settings import REVIEW_URL
 
 try:
     from urllib import quote_plus
@@ -14,7 +17,7 @@ except NameError:
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
-
+import cssutils
 from play_scraper import settings as s
 from play_scraper.constants import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
 from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
@@ -277,10 +280,65 @@ class PlayScraper(object):
             if category_id not in categories:
                 if purge_non_categories and '/store/apps/category/' not in url:
                     continue
-                    
+
                 categories[category_id] = {
                     'name': name,
                     'url': url,
                     'category_id': category_id}
 
         return categories
+
+    def reviews(self, app_id, page=1):
+        """Sends a POST request and retrieves a list of reviews for
+        the specified app.
+
+        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param page: the page number to retrieve; max is 10
+        :return: a list of reviews
+        """
+        data = {
+            'reviewType': 0,
+            'pageNum': page,
+            'id': app_id,
+            'reviewSortOrder': 4,
+            'xhr': 1,
+            'hl': self.language
+        }
+        self.params['authuser'] = '0'
+
+        response = send_request('POST', REVIEW_URL, data, self.params)
+        content = response.text
+        content = content[content.find('[["ecr"'):].strip()
+        data = loads(content)
+        html = data[0][2]
+        soup = BeautifulSoup(html, 'lxml', from_encoding='utf8')
+
+        reviews = []
+        for review in soup.select('.single-review'):
+            # author avatar
+            item = {}
+
+            author_image_style = review.select_one('.author-image').get('style', '')
+            sheet = cssutils.css.CSSStyleSheet()
+            sheet.add('tmp { %s }' % author_image_style)
+            item['author_image'] = list(cssutils.getUrls(sheet))[0]
+
+            review_header = review.select_one('.review-header')
+            item['review_id'] = review_header.get('data-reviewid', '')
+            item['review_permalink'] = review_header.select_one('.reviews-permalink').get('href')
+
+            item['author_name'] = review_header.select_one('.author-name').text
+            item['review_date'] = review_header.select_one('.review-date').text
+
+            current_rating = review_header.select_one('.current-rating').get('style')
+            item['current_rating'] = int(int(str(cssutils.parseStyle(current_rating).width).replace('%', '')) / 20)
+
+            review_body = review.select_one('.review-body')
+            review_title = review_body.select_one('.review-title').extract()
+            review_body.select_one('.review-link').decompose()
+            item['review_title'] = review_title.text
+            item['review_body'] = review_body.text
+
+            reviews.append(item)
+
+        return reviews
