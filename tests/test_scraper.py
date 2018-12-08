@@ -162,12 +162,13 @@ class CollectionTest(ScraperTestBase):
                     v,
                     (basestring, bool, dict, int, list, type(None))))
 
-    def test_default_num_results(self):
-        apps = self.s.collection('NEW_FREE', page=1)
+    def test_non_detailed_different_language_and_country(self):
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.collection('TOP_PAID', 'LIFESTYLE', results=5)
 
+        self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
-        self.assertEqual(settings.NUM_RESULTS, len(apps))
 
     def test_detailed_collection(self):
         apps = self.s.collection('TOP_FREE', results=1, detailed=True)
@@ -175,6 +176,29 @@ class CollectionTest(ScraperTestBase):
         self.assertEqual(1, len(apps))
         self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
         self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
+
+    def test_detailed_collection_different_language(self):
+        apps_default = self.s.collection('TOP_FREE', results=1, detailed=True)
+
+        s = PlayScraper(hl='da', gl='dk')
+        apps = s.collection('TOP_FREE', results=1, detailed=True)
+
+        self.assertEqual(1, len(apps))
+        self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
+
+        # additional details, like installs, are all None because we currently
+        # hardcode an English mapping for the various additional info section
+        # titles.
+        self.assertTrue(all([apps[0][x] is None
+                            for x in ADDITIONAL_INFO_KEYS]))
+
+    def test_default_num_results(self):
+        apps = self.s.collection('NEW_FREE', page=1)
+
+        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
+        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
+        self.assertEqual(settings.NUM_RESULTS, len(apps))
 
     def test_family_with_age_collection(self):
         apps = self.s.collection('TOP_FREE',
@@ -191,14 +215,6 @@ class CollectionTest(ScraperTestBase):
                                  results=2)
 
         self.assertEqual(2, len(apps))
-        self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
-        self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
-
-    def test_different_language_and_country(self):
-        s = PlayScraper(hl='da', gl='dk')
-        apps = s.collection('TOP_PAID', 'LIFESTYLE', results=5)
-
-        self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 

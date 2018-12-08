@@ -63,7 +63,7 @@ class PlayScraper(object):
 
         app_ids = [x.attrs['data-docid']
                    for x in soup.select('span.preview-overlay-container')]
-        return multi_futures_app_request(app_ids)
+        return multi_futures_app_request(app_ids, params=self.params)
 
     def details(self, app_id):
         """Sends a GET request and parses an application's details.

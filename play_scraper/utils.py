@@ -393,7 +393,7 @@ def bg_parse_app_details(session, response):
     response.app_details_data = details
 
 
-def multi_futures_app_request(app_ids, headers=None, verify=True,
+def multi_futures_app_request(app_ids, headers=None, verify=True, params=None,
                               workers=s.CONCURRENT_REQUESTS):
     """
     :param app_ids: a list of app IDs.
@@ -407,6 +407,7 @@ def multi_futures_app_request(app_ids, headers=None, verify=True,
     responses = [session.get(build_url('details', app_id),
                              headers=headers,
                              verify=verify,
+                             params=params,
                              background_callback=bg_parse_app_details)
                  for app_id in app_ids]
 
