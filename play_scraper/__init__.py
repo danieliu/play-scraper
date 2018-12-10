@@ -18,7 +18,6 @@ from play_scraper.api import (
     similar,
     suggestions,
     categories,
-    reviews,
 )
 
 

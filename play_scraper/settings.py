@@ -3,7 +3,6 @@
 BASE_URL = 'https://play.google.com/store/apps'
 SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
 SEARCH_URL = 'https://play.google.com/store/search'
-REVIEW_URL = 'https://play.google.com/store/getreviews'
 
 CONCURRENT_REQUESTS = 10
 USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
