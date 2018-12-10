@@ -99,3 +99,15 @@ def categories(hl='en', gl='us', purge_non_categories=False):
     """
     s = scraper.PlayScraper(hl, gl)
     return s.categories(purge_non_categories)
+
+
+def reviews(app_id, page=1, hl='en', gl='us'):
+    """Sends a POST request and retrieves a list of reviews for
+    the specified app.
+
+    :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+    :param page: the page number to retrieve; max is 10
+    :return: a list of reviews
+    """
+    s = scraper.PlayScraper(hl, gl)
+    return s.reviews(app_id, page)
