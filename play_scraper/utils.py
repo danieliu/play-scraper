@@ -232,7 +232,8 @@ def parse_app_details(soup):
 
     # Let the user handle modifying the URL to fetch different resolutions
     # Removing the end `=w720-h310-rw` doesn't seem to give original res?
-    screenshots = [img.attrs['src']
+    # Check 'src' and 'data-src' since it can be one or the other
+    screenshots = [img.attrs.get('src') or img.attrs.get('data-src')
                    for img in soup.select('button.NIc6yf img.lxGQyd')]
 
     try:
