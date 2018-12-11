@@ -246,7 +246,7 @@ class PlayScraper(object):
 
         return apps
 
-    def categories(self, purge_non_categories=False):
+    def categories(self, ignore_promotions=True):
         """Sends a GET request to the front page (app store base url), parses
         and returns a list of all available categories.
 
@@ -274,7 +274,7 @@ class PlayScraper(object):
                 name = 'Family'
 
             if category_id not in categories:
-                if purge_non_categories and '/store/apps/category/' not in url:
+                if ignore_promotions and '/store/apps/category/' not in url:
                     continue
 
                 categories[category_id] = {
