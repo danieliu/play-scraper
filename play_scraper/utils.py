@@ -421,6 +421,8 @@ def multi_futures_app_request(app_ids, headers=None, verify=True,
             })
             apps.append(response.result().app_details_data)
         except requests.exceptions.RequestException as e:
-            log.error('Error occurred fetching {app}'.format(app=app_ids[i]))
+            log.error('Error occurred fetching {app}: {err}'.format(
+                app=app_ids[i],
+                err=str(e)))
 
     return apps
