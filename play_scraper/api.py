@@ -91,11 +91,11 @@ def similar(app_id, hl='en', gl='us'):
     return s.similar(app_id)
 
 
-def categories(hl='en', gl='us'):
+def categories(hl='en', gl='us', ignore_promotions=True):
     """Sends a GET request to the front page (app store base url), parses and
     returns a list of all available categories.
 
     Note: May contain some promotions, e.g. "Popular Characters"
     """
     s = scraper.PlayScraper(hl, gl)
-    return s.categories()
+    return s.categories(ignore_promotions)
