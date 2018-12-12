@@ -236,15 +236,15 @@ class DeveloperTest(ScraperTestBase):
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_maximum_results(self):
-        # 'CrowdCompass by Cvent' has ~273 apps
-        apps = self.s.developer('CrowdCompass by Cvent', results=120)
+        # Google LLC has more than 120 apps
+        apps = self.s.developer('Google LLC', results=120)
 
         self.assertGreaterEqual(len(apps), 100)
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_over_max_results_fetches_five(self):
-        apps = self.s.developer('CrowdCompass by Cvent', results=121)
+        apps = self.s.developer('Google LLC', results=121)
 
         self.assertEqual(5, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
@@ -291,7 +291,7 @@ class DeveloperTest(ScraperTestBase):
 
     def test_page_out_of_range(self):
         with self.assertRaises(ValueError):
-            self.s.developer('CrowdCompass by Cvent',
+            self.s.developer('Google LLC',
                              results=20,
                              page=13)
 
