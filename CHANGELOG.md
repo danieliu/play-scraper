@@ -1,5 +1,16 @@
 # Changelog
 
+### 0.5.0: 2018-12-11
+
+* Fix category css selector
+* Fix screenshot css selector
+* Update requests version
+* Fix missing kwargs for `search` and `similar`
+
+### 0.4.2: 2018-10-01
+
+* Added manifest to fix install-option, and update requires
+
 ### 0.4.1: 2018-08-12
 
 * Remove `**kwargs` in favor of specified kwargs
