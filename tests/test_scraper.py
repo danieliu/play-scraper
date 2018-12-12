@@ -73,6 +73,14 @@ ADDITIONAL_INFO_KEYS = {
     'updated',
 }
 
+REVIEW_KEYS = {
+    'author_name',
+    'review_id',
+    'review_permalink',
+    'review_date',
+    'review_title',
+    'review_body'
+}
 
 class ScraperTestBase(unittest.TestCase):
     def setUp(self):
@@ -380,3 +388,11 @@ class CategoryTest(ScraperTestBase):
         categories = s.categories()
 
         self.assertTrue(all(key in categories for key in CATEGORIES))
+
+
+class ReviewTest(ScraperTestBase):
+    def test_review_ok(self):
+        reviews = self.s.reviews('com.android.chrome')
+
+        self.assertGreater(len(reviews), 0)
+        self.assertTrue(all(key in reviews[0] for key in REVIEW_KEYS))

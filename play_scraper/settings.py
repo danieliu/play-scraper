@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-BASE_URL = 'https://play.google.com/store/apps'
+PLAYSTORE_URL = 'https://play.google.com/store'
+BASE_URL = PLAYSTORE_URL + '/apps'
 SUGGESTION_URL = 'https://market.android.com/suggest/SuggRequest'
-SEARCH_URL = 'https://play.google.com/store/search'
+SEARCH_URL = PLAYSTORE_URL + '/search'
+REVIEW_URL = PLAYSTORE_URL + '/getreviews'
 
 CONCURRENT_REQUESTS = 10
 USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
