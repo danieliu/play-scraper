@@ -33,7 +33,7 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.details('com.android.chrome')
+>>> print(play_scraper.details('com.android.chrome'))
 {
     'app_id': 'com.android.chrome',
     'category': ['COMMUNICATION'],
@@ -86,11 +86,11 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.collection(
+>>> print(play_scraper.collection(
         collection='TRENDING',
         category='GAME_RACING',
         results=5,
-        page=1)
+        page=1))
 [ { 'app_id': 'blaze.andthemonstermachinesferr',
     'description': 'Blaze The Monster Truck Mud Mountain Rescue - Monster Machines game for kids',
     'developer': 'app Star',
@@ -131,7 +131,7 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.developer('Disney', results=5)
+>>> print(play_scraper.developer('Disney', results=5))
 [ { 'app_id': 'com.disney.datg.videoplatforms.android.watchdc',
     'description': 'Disney Channel, Disney XD & Disney Junior\u2019s new home for shows, games & live TV!',
     'developer': 'Disney',
@@ -168,7 +168,7 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.suggestions('cat')
+>>> print(play_scraper.suggestions('cat'))
 ['cat games', 'cats', 'cat simulator', 'catan', 'cats in the cradle']
 ```
 
@@ -187,7 +187,7 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.search('dogs', page=2)
+>>> print(play_scraper.search('dogs', page=2))
 [ { 'app_id': 'com.tivola.doghotel',
     'description': 'Be head of your own hotel and care for labradors, terrier and many more dogs!',
     'developer': 'Tivola',
@@ -227,7 +227,7 @@ Options:
 
 ```python
 >>> import play_scraper
->>> print play_scraper.similar('com.supercell.clashofclans', results=5)
+>>> print(play_scraper.similar('com.supercell.clashofclans', results=5))
 [ { 'app_id': 'com.supercell.clashroyale',
     'description': 'Clash Royale is a real-time, head-to-head battle game set in the Clash Universe.',
     'developer': 'Supercell',
