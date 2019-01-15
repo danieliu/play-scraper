@@ -1,0 +1,4 @@
+black==19.3b0;python_version>"3.6"
+detox==0.19
+flake8==3.7.8
+twine>=1.11.0
