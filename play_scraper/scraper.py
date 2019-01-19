@@ -253,14 +253,14 @@ class PlayScraper(object):
         Note: May contain some promotions, e.g. "Popular Characters"
         """
         categories = {}
-        strainer = SoupStrainer('a', {'class': 'r2Osbf'})
+        strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
 
         response = send_request('GET', s.BASE_URL, params=self.params)
         soup = BeautifulSoup(response.content,
                              'lxml',
                              from_encoding='utf8',
                              parse_only=strainer)
-        category_links = soup.select('a.r2Osbf')
+        category_links = soup.select('a.child-submenu-link')
         age = '?age='
 
         for cat in category_links:
