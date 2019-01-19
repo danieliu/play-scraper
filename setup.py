@@ -36,9 +36,9 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
-        'beautifulsoup4==4.6.1',
-        'lxml==4.2.4',
-        'requests-futures==0.9.7',
-        'requests[security]==2.20.0',
+        'beautifulsoup4>=4.6.1',
+        'lxml>=4.2.4',
+        'requests-futures>=0.9.7',
+        'requests[security]>=2.20.0',
     ],
 )
