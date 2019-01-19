@@ -3,16 +3,17 @@ build:
 
 clean:
 	python setup.py clean --all
+	rm -rf dist
 
 lint:
 	flake8 play_scraper tests
 
-publish:
+publish: build
 	pip install 'twine>=1.11.0'
 	twine upload dist/*
 	rm -rf build dist .egg play_scraper.egg-info
 
-publish-test:
+publish-test: build
 	pip install 'twine>=1.11.0'
 	twine upload -r test dist/*
 	rm -rf build dist .egg play_scraper.egg-info
