@@ -78,7 +78,7 @@ Options:
 * `category` (default None) a [category](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L12) to filter by.
 * `results` (default 60, max 120) the number of apps to fetch.
 * `page` (default 0) the page number to fetch. Limit: `page * results <= 500`.
-* `age` (default None) an [age range](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L67) to filter by. (Only for FAMILY categories)
+* `age` (default None) an [age range](https://github.com/danieliu/play-scraper/blob/master/play_scraper/lists.py#L74) to filter by. (Only for FAMILY categories)
 * `detailed` (default False) if True, sends a request per app to fetch the full [details](#details).
 * `hl` (default `en` for English) the [language code](https://github.com/danieliu/play-scraper/blob/master/play_scraper/constants.py#L1) to receive results in a specific language
     * Note: non-default will result in certain fields as `None` due to the way an app's additional info section HTML is displayed

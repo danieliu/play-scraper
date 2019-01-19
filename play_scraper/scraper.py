@@ -249,11 +249,9 @@ class PlayScraper(object):
     def categories(self, ignore_promotions=True):
         """Sends a GET request to the front page (app store base url), parses
         and returns a list of all available categories.
-
-        Note: May contain some promotions, e.g. "Popular Characters"
         """
         categories = {}
-        strainer = SoupStrainer('a', {'class': 'child-submenu-link'})
+        strainer = SoupStrainer('ul', {'class': 'submenu-item-wrapper'})
 
         response = send_request('GET', s.BASE_URL, params=self.params)
         soup = BeautifulSoup(response.content,
@@ -261,14 +259,15 @@ class PlayScraper(object):
                              from_encoding='utf8',
                              parse_only=strainer)
         category_links = soup.select('a.child-submenu-link')
-        age = '?age='
+        category_links += soup.select('a.parent-submenu-link')
+        age_query = '?age='
 
         for cat in category_links:
             url = urljoin(s.BASE_URL, cat.attrs['href'])
             category_id = url.split('/')[-1]
             name = cat.string.strip()
 
-            if age in category_id:
+            if age_query in category_id:
                 category_id = 'FAMILY'
                 url = url.split('?')[0]
                 name = 'Family'
