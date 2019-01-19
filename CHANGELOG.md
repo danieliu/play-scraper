@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.5.1: 2019-01-19
+
+* Revert category css selector (seems like it was reverted on the play store)
+* Add support for parent category links to `category()`, e.g. `GAME`
+* Pass through gl/hl params to multiple app detail requests
+
 ### 0.5.0: 2018-12-11
 
 * Fix category css selector
