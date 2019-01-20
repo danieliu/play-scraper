@@ -398,10 +398,10 @@ def parse_card_info(soup):
     }
 
 
-def bg_parse_app_details(session, response):
+def parse_app_details_response_hook(response, *args, **kwargs):
     """
-    Requests futures background callback function to asynchronously parse app
-    details as the responses are received. Mimics the `details` api.
+    Requests futures hook function to asynchronously parse app details as the
+    responses are received. Mimics the `details` api.
     """
     if not response.status_code == requests.codes.ok:
         response.raise_for_status()
@@ -425,7 +425,9 @@ def multi_futures_app_request(app_ids, headers=None, verify=True, params=None,
                              headers=headers,
                              verify=verify,
                              params=params,
-                             background_callback=bg_parse_app_details)
+                             hooks={
+                                 'response': parse_app_details_response_hook,
+                             })
                  for app_id in app_ids]
 
     apps = []
