@@ -123,7 +123,8 @@ class DetailsTest(ScraperTestBase):
         self.assertEqual(['COMMUNICATION'], app_data['category'])
         self.assertEqual('1,000,000,000+', app_data['installs'])
         self.assertEqual('Google LLC', app_data['developer'])
-        self.assertTrue(all(x is not None for x in app_data['screenshots']))
+        self.assertTrue(all(x is not None and x.startswith('https://')
+                            for x in app_data['screenshots']))
 
         # Ensure primitive types, not bs4 NavigableString
         for k, v in app_data.items():
@@ -138,7 +139,8 @@ class DetailsTest(ScraperTestBase):
         self.assertEqual(len(DETAIL_KEYS), len(app_data.keys()))
         self.assertEqual('com.android.chrome', app_data['app_id'])
         self.assertEqual(['COMMUNICATION'], app_data['category'])
-        self.assertTrue(all(x is not None for x in app_data['screenshots']))
+        self.assertTrue(all(x is not None and x.startswith('https://')
+                            for x in app_data['screenshots']))
 
         # additional details, like installs, are all None because we currently
         # hardcode an English mapping for the various additional info section

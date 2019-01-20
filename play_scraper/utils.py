@@ -213,6 +213,23 @@ def parse_additional_info(soup):
     return data
 
 
+def parse_screenshot_src(img):
+    """
+    The screenshot img element's src isn't always present, and sometimes is set
+    to a base64 encoded empty image because they're normally hidden in the
+    scrollable carousel, for purposes of saving bandwidth and faster loading.
+
+    Instead, it seems like we can grab the src url from data-src in those cases.
+
+    :param img: the img bs4 element
+    :return: the src url string
+    """
+    src = img.attrs.get('src')
+    if src is None or not src.startswith('https://'):
+        src = img.attrs.get('data-src')
+    return src
+
+
 def parse_app_details(soup):
     """Extracts an app's details from its info page.
 
@@ -233,7 +250,7 @@ def parse_app_details(soup):
     # Let the user handle modifying the URL to fetch different resolutions
     # Removing the end `=w720-h310-rw` doesn't seem to give original res?
     # Check 'src' and 'data-src' since it can be one or the other
-    screenshots = [img.attrs.get('src') or img.attrs.get('data-src')
+    screenshots = [parse_screenshot_src(img)
                    for img in soup.select('button.NIc6yf img.lxGQyd')]
 
     try:
