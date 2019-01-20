@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.5.2: 2019-01-19
+
+* Fix CSS attribute selector soupsieve errors
+* Correctly parse screenshot img src when placeholder is present (base64 encoded empty image)
+
 ### 0.5.1: 2019-01-19
 
 * Revert category css selector (seems like it was reverted on the play store)
