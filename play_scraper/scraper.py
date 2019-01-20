@@ -131,7 +131,7 @@ class PlayScraper(object):
         else:
             soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
             apps = [parse_card_info(app_card)
-                    for app_card in soup.select('div[data-uitype=500]')]
+                    for app_card in soup.select('div[data-uitype="500"]')]
 
         return apps
 
@@ -164,7 +164,7 @@ class PlayScraper(object):
         else:
             soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
             apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype=500]')]
+                    for app in soup.select('div[data-uitype="500"]')]
 
         return apps
 
@@ -219,7 +219,7 @@ class PlayScraper(object):
             apps = self._parse_multiple_apps(response)
         else:
             apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype=500]')]
+                    for app in soup.select('div[data-uitype="500"]')]
 
         return apps
 
@@ -242,7 +242,7 @@ class PlayScraper(object):
             apps = self._parse_multiple_apps(response)
         else:
             apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype=500]')]
+                    for app in soup.select('div[data-uitype="500"]')]
 
         return apps
 
