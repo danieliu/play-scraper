@@ -291,7 +291,7 @@ def parse_app_details(soup):
 
     try:
         changes_soup = soup.select('div[itemprop="description"] content')[1]
-        recent_changes = '\n'.join([x.string.strip() for x in changes_soup])
+        recent_changes = changes_soup.text
     except (IndexError, AttributeError):
         recent_changes = None
 
