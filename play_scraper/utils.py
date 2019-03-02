@@ -313,7 +313,10 @@ def parse_app_details(soup):
 
     offers_iap = bool(additional_info_data.get('iap_range'))
 
-    dev_id = soup.select_one('a.hrTbp.R8zArc').attrs['href'].split('=')[1]
+    try:
+        dev_id = soup.select_one('a.hrTbp.R8zArc').attrs['href'].split('=')[1]
+    except IndexError:
+        dev_id = None
     developer_id = dev_id if dev_id else None
 
     data = {
@@ -357,7 +360,10 @@ def parse_card_info(soup):
 
     dev_soup = soup.select_one('a.subtitle')
     developer = dev_soup.attrs['title']
-    developer_id = dev_soup.attrs['href'].split('=')[1]
+    try:
+        developer_id = dev_soup.attrs['href'].split('=')[1]
+    except IndexError:
+        developer_id = None
 
     description = soup.select_one('div.description').text.strip()
     score = soup.select_one('div.tiny-star')

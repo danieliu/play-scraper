@@ -148,6 +148,22 @@ class DetailsTest(ScraperTestBase):
         self.assertTrue(all([app_data[x] is None
                             for x in ADDITIONAL_INFO_KEYS]))
 
+    def test_app_with_no_developer(self):
+        app_data = self.s.details('org.selfie.beauty.camera.pro')
+
+        self.assertTrue(all(key in app_data for key in DETAIL_KEYS))
+        self.assertEqual(len(DETAIL_KEYS), len(app_data.keys()))
+        self.assertEqual('org.selfie.beauty.camera.pro', app_data['app_id'])
+        self.assertIsNone(app_data['developer_id'])
+        self.assertTrue(all(x is not None and x.startswith('https://')
+                            for x in app_data['screenshots']))
+
+        # Ensure primitive types, not bs4 NavigableString
+        for k, v in app_data.items():
+            self.assertTrue(isinstance(
+                v,
+                (basestring, bool, dict, int, list, type(None))))
+
 
 class CollectionTest(ScraperTestBase):
     def test_non_detailed_collection(self):
