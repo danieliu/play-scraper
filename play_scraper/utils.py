@@ -290,10 +290,16 @@ def parse_app_details(soup):
         reviews = 0
 
     try:
+
         changes_soup = soup.select('div[itemprop="description"] content')[1]
         recent_changes = '\n'.join([x.string.strip() for x in changes_soup])
+        
     except (IndexError, AttributeError):
-        recent_changes = None
+        try: 
+            changes_soup = soup.select('div[itemprop="description"] content')[1]
+            recent_changes = changes_soup.text
+        except Exception as e:
+            recent_changes = None
 
     try:
         price = soup.select_one('meta[itemprop="price"]').attrs['content']
