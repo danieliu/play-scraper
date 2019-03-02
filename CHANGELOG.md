@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.5.3: 2019-03-02
+
+* Merged #33; added a fix to handle recent changes with newlines (`<br/>` tags)
+* Fix #34; catch case where `developer_id` can be missing.
+
 ### 0.5.2: 2019-01-19
 
 * Fix CSS attribute selector soupsieve errors
