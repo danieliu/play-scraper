@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.5.4: 2019-04-02
+
+* Merged #40; updates the additional info selector, fixing #37 and #39
+
 ### 0.5.3: 2019-03-02
 
 * Merged #33; added a fix to handle recent changes with newlines (`<br/>` tags)
