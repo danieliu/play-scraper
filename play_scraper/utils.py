@@ -237,9 +237,15 @@ def parse_app_details(soup):
     :return: a dictionary of app details
     """
     title = soup.select_one('h1[itemprop="name"] span').text
-    icon = (soup.select_one('.dQrBL img.ujDFqe')
-                .attrs['src']
-                .split('=')[0])
+    
+    try:
+        icon = (soup.select_one('.dQrBL img.ujDFqe')
+                    .attrs['src'])
+        if icon is not None:
+            icon = icon.split('=')[0]
+    except AttributeError:
+        icon = None
+        
     editors_choice = bool(
         soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
 
