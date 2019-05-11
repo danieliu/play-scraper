@@ -19,6 +19,7 @@ pip install play-scraper
 * [search](#search): Fetch applications matching a search query.
 * [similar](#similar): Fetch an application's similar apps.
 * [categories](#categories): Fetch a list of available categories.
+* [reviews](#reviews): Fetch a list of an application's reviews.
 
 #### details
 
@@ -271,6 +272,30 @@ Options:
  'ART_AND_DESIGN': { 'category_id': 'ART_AND_DESIGN',
                      'name': 'Art & Design',
                      'url': 'https://play.google.com/store/apps/category/ART_AND_DESIGN'}, ...}
+```
+
+#### reviews
+
+Fetch a list of an application's reviews.
+
+Options:
+
+* `app_id` the app id to get, e.g. `com.android.chrome` for Google Chrome. 
+* `page` (default 1) the page number to fetch. 
+
+```python
+>>> import play_scraper
+>>> play_scraper.reviews('com.android.chrome', 1)
+[{
+    'author_image': 'https://lh3.googleusercontent.com/a-/...', 
+    'review_id': 'gp:AOqpTOHu4lr...', 
+    'review_permalink': '/store/apps/details?id=com.android.chrome&reviewId=...', 
+    'author_name': ' Martin Staf ', 
+    'review_date': 'December 5, 2018', 
+    'current_rating': 5, 
+    'review_title': '', 
+    'review_body': " The overflow menu at the bottom ..."
+},...]
 ```
 
 ### Tests

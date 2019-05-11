@@ -13,6 +13,7 @@ except NameError:
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
+import cssutils
 
 from play_scraper import settings as s
 from play_scraper.constants import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
@@ -282,3 +283,58 @@ class PlayScraper(object):
                     'category_id': category_id}
 
         return categories
+
+    def reviews(self, app_id, page=1):
+        """Sends a POST request and retrieves a list of reviews for
+        the specified app.
+
+        :param app_id: the app to retrieve details from, e.g. 'com.nintendo.zaaa'
+        :param page: the page number to retrieve; max is 10
+        :return: a list of reviews
+        """
+        data = {
+            'reviewType': 0,
+            'pageNum': page,
+            'id': app_id,
+            'reviewSortOrder': 4,
+            'xhr': 1,
+            'hl': self.language
+        }
+        self.params['authuser'] = '0'
+
+        response = send_request('POST', s.REVIEW_URL, data, self.params)
+        content = response.text
+        content = content[content.find('[["ecr"'):].strip()
+        data = json.loads(content)
+        html = data[0][2]
+        soup = BeautifulSoup(html, 'lxml', from_encoding='utf8')
+
+        reviews = []
+        for element in soup.select('.single-review'):
+            review = {}
+
+            avatar_style = element.select_one('.author-image').get('style')
+            if avatar_style:
+                sheet = cssutils.css.CSSStyleSheet()
+                sheet.add('tmp { %s }' % avatar_style)
+                review['author_image'] = list(cssutils.getUrls(sheet))[0]
+
+            review_header = element.select_one('.review-header')
+            review['review_id'] = review_header.get('data-reviewid', '')
+            review['review_permalink'] = review_header.select_one('.reviews-permalink').get('href')
+
+            review['author_name'] = review_header.select_one('.author-name').text
+            review['review_date'] = review_header.select_one('.review-date').text
+
+            curr_rating = review_header.select_one('.current-rating').get('style')
+            review['current_rating'] = int(int(str(cssutils.parseStyle(curr_rating).width).replace('%', '')) / 20)
+
+            body_elem = element.select_one('.review-body')
+            review_title = body_elem.select_one('.review-title').extract()
+            body_elem.select_one('.review-link').decompose()
+            review['review_title'] = review_title.text
+            review['review_body'] = body_elem.text
+
+            reviews.append(review)
+
+        return reviews
