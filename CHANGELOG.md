@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.5.5: 2019-05-11
+
+* Merged #43; updates the icon class selector, fixing #42, #44, #47, #48
+* Temporarily fixed logic for ratings histogram to return `None`s. The ratings numbers are no longer available in the HTML, so it will need to be scraped elsewhere.
+
 ### 0.5.4: 2019-04-02
 
 * Merged #40; updates the additional info selector, fixing #37 and #39
