@@ -237,7 +237,7 @@ def parse_app_details(soup):
     :return: a dictionary of app details
     """
     title = soup.select_one('h1[itemprop="name"] span').text
-    icon = (soup.select_one('.dQrBL img.ujDFqe')
+    icon = (soup.select_one('img[class="T75of sHb2Xb"]')
                 .attrs['src']
                 .split('=')[0])
     editors_choice = bool(
