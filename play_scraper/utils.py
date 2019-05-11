@@ -282,6 +282,8 @@ def parse_app_details(soup):
                           .replace(',', ''))
         ratings_section = soup.select_one('div.VEF2C')
         num_ratings = [int(rating.attrs['title'].replace(',', ''))
+                       if rating.attrs.get('title')
+                       else None
                        for rating in ratings_section.select(
                            'div span[style^="width:"]')]
         for i in range(5):
