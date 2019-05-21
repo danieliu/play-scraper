@@ -262,7 +262,7 @@ def parse_app_details(soup):
         video = None
 
     description_soup = soup.select_one(
-        'div[itemprop="description"] content div')
+        'div[itemprop="description"]')
     if description_soup:
         description = '\n'.join(description_soup.stripped_strings)
         description_html = description_soup.encode_contents()
