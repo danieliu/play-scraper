@@ -37,3 +37,15 @@ PAGE_TOKENS = {
 
 # Regex to find page tokens within scrip tags
 TOKEN_RE = r'GAEiA[\w=]{3,7}:S:ANO1lj[\w]{5}'
+
+#========UPSTREAM PROXY SETTINGS ==============
+# If you are behind a Proxy
+UPSTREAM_PROXY_ENABLED = False
+UPSTREAM_PROXY_SSL_VERIFY = True
+UPSTREAM_PROXY_TYPE = "http"
+UPSTREAM_PROXY_IP = "127.0.0.1"
+UPSTREAM_PROXY_PORT = 3128
+UPSTREAM_PROXY_USERNAME = ""
+UPSTREAM_PROXY_PASSWORD = ""
+ #==============================================
+
