@@ -89,6 +89,26 @@ def build_collection_url(category='', collection=''):
     return url
 
 
+def upstream_proxy(flaw_type):
+    """Set upstream Proxy if needed"""
+    if s.UPSTREAM_PROXY_ENABLED:
+        if not s.UPSTREAM_PROXY_USERNAME:
+            proxy_port = str(s.UPSTREAM_PROXY_PORT)
+            proxy_host = s.UPSTREAM_PROXY_TYPE + '://' + \
+                s.UPSTREAM_PROXY_IP + ':' + proxy_port
+            proxies = {flaw_type: proxy_host}
+        else:
+            proxy_port = str(s.UPSTREAM_PROXY_PORT)
+            proxy_host = s.UPSTREAM_PROXY_TYPE + '://' + s.UPSTREAM_PROXY_USERNAME + \
+                ':' + s.UPSTREAM_PROXY_PASSWORD + "@" + \
+                s.UPSTREAM_PROXY_IP + ':' + proxy_port
+            proxies = {flaw_type: proxy_host}
+    else:
+        proxies = {flaw_type: None}
+    verify = bool(s.UPSTREAM_PROXY_SSL_VERIFY)
+    return proxies, verify
+
+
 def send_request(method, url, data=None, params=None, headers=None,
                  timeout=30, verify=True, allow_redirects=False):
     """Sends a request to the url and returns the response.
@@ -108,6 +128,7 @@ def send_request(method, url, data=None, params=None, headers=None,
         data = generate_post_data()
 
     try:
+        proxies, verify = upstream_proxy('https')
         response = requests.request(
             method=method,
             url=url,
@@ -115,6 +136,7 @@ def send_request(method, url, data=None, params=None, headers=None,
             params=params,
             headers=headers,
             timeout=timeout,
+            proxies=proxies,
             verify=verify,
             allow_redirects=allow_redirects)
         if not response.status_code == requests.codes.ok:
