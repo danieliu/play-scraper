@@ -121,7 +121,7 @@ class DetailsTest(ScraperTestBase):
         self.assertEqual(len(DETAIL_KEYS), len(app_data.keys()))
         self.assertEqual('com.android.chrome', app_data['app_id'])
         self.assertEqual(['COMMUNICATION'], app_data['category'])
-        self.assertEqual('1,000,000,000+', app_data['installs'])
+        self.assertEqual('5,000,000,000+', app_data['installs'])
         self.assertEqual('Google LLC', app_data['developer'])
         self.assertTrue(all(x is not None and x.startswith('https://')
                             for x in app_data['screenshots']))
