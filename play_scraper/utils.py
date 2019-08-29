@@ -213,7 +213,7 @@ def parse_additional_info(soup):
     return data
 
 
-def parse_screenshot_src(img):
+def parse_screenshot_src(btn):
     """
     The screenshot img element's src isn't always present, and sometimes is set
     to a base64 encoded empty image because they're normally hidden in the
@@ -224,6 +224,7 @@ def parse_screenshot_src(img):
     :param img: the img bs4 element
     :return: the src url string
     """
+    img = btn.select_one('img')
     src = img.attrs.get('src')
     if src is None or not src.startswith('https://'):
         src = img.attrs.get('data-src')
@@ -250,8 +251,8 @@ def parse_app_details(soup):
     # Let the user handle modifying the URL to fetch different resolutions
     # Removing the end `=w720-h310-rw` doesn't seem to give original res?
     # Check 'src' and 'data-src' since it can be one or the other
-    screenshots = [parse_screenshot_src(img)
-                   for img in soup.select('button.NIc6yf img.lxGQyd')]
+    screenshots = [parse_screenshot_src(btn)
+                   for img in soup.select('button[aria-label^="Open screenshot"]')]
 
     try:
         video = (soup.select_one('button[data-trailer-url^="https"]')
@@ -262,7 +263,7 @@ def parse_app_details(soup):
         video = None
 
     description_soup = soup.select_one(
-        'div[itemprop="description"] content div')
+        'div[itemprop="description"] div')
     if description_soup:
         description = '\n'.join(description_soup.stripped_strings)
         description_html = description_soup.encode_contents()
