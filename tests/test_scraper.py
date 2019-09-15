@@ -202,8 +202,6 @@ class CollectionTest(ScraperTestBase):
         self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
     def test_detailed_collection_different_language(self):
-        apps_default = self.s.collection('TOP_FREE', results=1, detailed=True)
-
         s = PlayScraper(hl='da', gl='dk')
         apps = s.collection('TOP_FREE', results=1, detailed=True)
 

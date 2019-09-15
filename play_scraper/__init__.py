@@ -10,7 +10,7 @@ __version__ = '0.6.0'
 
 import logging
 
-from play_scraper.api import (
+from play_scraper.api import (  # noqa: F401
     collection,
     details,
     developer,
