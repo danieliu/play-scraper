@@ -251,15 +251,13 @@ class PlayScraper(object):
         and returns a list of all available categories.
         """
         categories = {}
-        strainer = SoupStrainer('ul', {'class': 'submenu-item-wrapper'})
 
         response = send_request('GET', s.BASE_URL, params=self.params)
         soup = BeautifulSoup(response.content,
                              'lxml',
-                             from_encoding='utf8',
-                             parse_only=strainer)
-        category_links = soup.select('a.child-submenu-link')
-        category_links += soup.select('a.parent-submenu-link')
+                             from_encoding='utf8')
+
+        category_links = soup.select('div[id*="action-dropdown-children"] a[href*="category"]')
         age_query = '?age='
 
         for cat in category_links:
