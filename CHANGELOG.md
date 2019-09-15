@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.6.0: 2019-09-15
+
+* Updated similar apps parsing, fixing #49.
+* Updated search apps parsing, fixing #61.
+
 ### 0.5.6: 2019-09-14
 
 * Merged #56; updates categories and description selectors, fixing #50, #59.
