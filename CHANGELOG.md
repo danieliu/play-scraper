@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.5.6: 2019-09-14
+
+* Merged #56; updates categories and description selectors, fixing #50, #59.
+* Updated countries list constant using [countries.csv](https://developers.google.com/public-data/docs/canonical/countries_csv), fixing #55.
+* Updated screenshots selector based on changes in #57, fixing #58.
+
 ### 0.5.5: 2019-05-11
 
 * Merged #43; updates the icon class selector, fixing #42, #44, #47, #48
