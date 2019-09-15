@@ -223,8 +223,8 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype="500"]')]
+            apps = [parse_cluster_card_info(app)
+                    for app in soup.select('div.Vpfmgd')]
 
         return apps
 

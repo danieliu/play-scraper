@@ -357,14 +357,14 @@ class SearchTest(ScraperTestBase):
     def test_basic_search(self):
         apps = self.s.search('cats')
 
-        self.assertEqual(20, len(apps))
+        self.assertEqual(50, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
     def test_search_with_app_detailed(self):
         apps = self.s.search('cats', detailed=True)
 
-        self.assertEqual(20, len(apps))
+        self.assertEqual(50, len(apps))
         self.assertTrue(all(key in apps[0] for key in DETAIL_KEYS))
         self.assertEqual(len(DETAIL_KEYS), len(apps[0].keys()))
 
@@ -372,7 +372,7 @@ class SearchTest(ScraperTestBase):
         s = PlayScraper(hl='da', gl='dk')
         apps = s.search('dog')
 
-        self.assertEqual(20, len(apps))
+        self.assertEqual(50, len(apps))
         self.assertTrue(all(key in apps[0] for key in BASIC_KEYS))
         self.assertEqual(len(BASIC_KEYS), len(apps[0].keys()))
 
