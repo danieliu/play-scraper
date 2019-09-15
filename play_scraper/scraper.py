@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -31,17 +32,20 @@ from play_scraper.utils import (
 
 
 class PlayScraper(object):
-    def __init__(self, hl='en', gl='us'):
+    def __init__(self, hl="en", gl="us"):
         self.language = hl
         if self.language not in HL_LANGUAGE_CODES:
-            raise ValueError('{hl} is not a valid language interface code.'.format(
-                hl=self.language))
+            raise ValueError(
+                "{hl} is not a valid language interface code.".format(hl=self.language)
+            )
         self.geolocation = gl
         if self.geolocation not in GL_COUNTRY_CODES:
-            raise ValueError('{gl} is not a valid geolocation country code.'.format(
-                gl=self.geolocation))
-        self.params = {'hl': self.language,
-                       'gl': self.geolocation}
+            raise ValueError(
+                "{gl} is not a valid geolocation country code.".format(
+                    gl=self.geolocation
+                )
+            )
+        self.params = {"hl": self.language, "gl": self.geolocation}
 
         self._base_url = s.BASE_URL
         self._suggestion_url = s.SUGGESTION_URL
@@ -58,15 +62,16 @@ class PlayScraper(object):
         """
         # TODO: refactor to better handle multiple possible list HTMLs and selectors
         # to extract out app ids
-        soup = BeautifulSoup(list_response.content,
-                             'lxml',
-                             from_encoding='utf8')
+        soup = BeautifulSoup(list_response.content, "lxml", from_encoding="utf8")
 
-        app_ids = [x.attrs['data-docid']
-                   for x in soup.select('span.preview-overlay-container')]
+        app_ids = [
+            x.attrs["data-docid"] for x in soup.select("span.preview-overlay-container")
+        ]
         if not app_ids:
-            app_ids = [extract_id_query(x.attrs.get('href'))
-                       for x in soup.select('div.p63iDd > a')]
+            app_ids = [
+                extract_id_query(x.attrs.get("href"))
+                for x in soup.select("div.p63iDd > a")
+            ]
 
         return multi_futures_app_request(app_ids, params=self.params)
 
@@ -76,24 +81,29 @@ class PlayScraper(object):
         :param app_id: the app to retrieve details, e.g. 'com.nintendo.zaaa'
         :return: a dictionary of app details
         """
-        url = build_url('details', app_id)
+        url = build_url("details", app_id)
 
         try:
-            response = send_request('GET', url, params=self.params)
-            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
+            response = send_request("GET", url, params=self.params)
+            soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
         except requests.exceptions.HTTPError as e:
-            raise ValueError('Invalid application ID: {app}. {error}'.format(
-                app=app_id, error=e))
+            raise ValueError(
+                "Invalid application ID: {app}. {error}".format(app=app_id, error=e)
+            )
 
         app_json = parse_app_details(soup)
-        app_json.update({
-            'app_id': app_id,
-            'url': url,
-        })
+        app_json.update({"app_id": app_id, "url": url})
         return app_json
 
-    def collection(self, collection_id, category_id=None, results=None,
-                   page=None, age=None, detailed=False):
+    def collection(
+        self,
+        collection_id,
+        category_id=None,
+        results=None,
+        page=None,
+        age=None,
+        detailed=False,
+    ):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
 
@@ -105,38 +115,43 @@ class PlayScraper(object):
         :param detailed: if True, sends request per app for its full detail
         :return: a list of app dictionaries
         """
-        if (collection_id not in COLLECTIONS and
-                not collection_id.startswith('promotion')):
-            raise ValueError('Invalid collection_id \'{collection}\'.'.format(
-                collection=collection_id))
+        if collection_id not in COLLECTIONS and not collection_id.startswith(
+            "promotion"
+        ):
+            raise ValueError(
+                "Invalid collection_id '{collection}'.".format(collection=collection_id)
+            )
         collection_name = COLLECTIONS.get(collection_id) or collection_id
 
-        category = '' if category_id is None else CATEGORIES.get(category_id)
+        category = "" if category_id is None else CATEGORIES.get(category_id)
         if category is None:
-            raise ValueError('Invalid category_id \'{category}\'.'.format(
-                category=category_id))
+            raise ValueError(
+                "Invalid category_id '{category}'.".format(category=category_id)
+            )
 
         results = s.NUM_RESULTS if results is None else results
         if results > 120:
-            raise ValueError('Number of results cannot be more than 120.')
+            raise ValueError("Number of results cannot be more than 120.")
 
         page = 0 if page is None else page
         if page * results > 500:
-            raise ValueError('Start (page * results) cannot be greater than 500.')
+            raise ValueError("Start (page * results) cannot be greater than 500.")
 
-        if category.startswith('FAMILY') and age is not None:
-            self.params['age'] = AGE_RANGE[age]
+        if category.startswith("FAMILY") and age is not None:
+            self.params["age"] = AGE_RANGE[age]
 
         url = build_collection_url(category, collection_name)
         data = generate_post_data(results, page)
-        response = send_request('POST', url, data, self.params)
+        response = send_request("POST", url, data, self.params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
-            apps = [parse_card_info(app_card)
-                    for app_card in soup.select('div[data-uitype="500"]')]
+            soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
+            apps = [
+                parse_card_info(app_card)
+                for app_card in soup.select('div[data-uitype="500"]')
+            ]
 
         return apps
 
@@ -151,25 +166,30 @@ class PlayScraper(object):
         :return: a list of app dictionaries
         """
         if not isinstance(developer, basestring) or developer.isdigit():
-            raise ValueError('Parameter \'developer\' must be the developer name, not the developer id.')
+            raise ValueError(
+                "Parameter 'developer' must be the developer name, not the developer id."
+            )
 
         results = s.DEV_RESULTS if results is None else results
         page = 0 if page is None else page
         page_num = (results // 20) * page
         if not 0 <= page_num <= 12:
-            raise ValueError('Page out of range. (results // 20) * page must be between 0 - 12')
+            raise ValueError(
+                "Page out of range. (results // 20) * page must be between 0 - 12"
+            )
         pagtok = self._pagtok[page_num]
 
-        url = build_url('developer', developer)
+        url = build_url("developer", developer)
         data = generate_post_data(results, 0, pagtok)
-        response = send_request('POST', url, data, self.params)
+        response = send_request("POST", url, data, self.params)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
-            apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype="500"]')]
+            soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
+            apps = [
+                parse_card_info(app) for app in soup.select('div[data-uitype="500"]')
+            ]
 
         return apps
 
@@ -183,16 +203,10 @@ class PlayScraper(object):
         if not query:
             raise ValueError("Cannot get suggestions for an empty query.")
 
-        self.params.update({
-            'json': 1,
-            'c': 0,
-            'query': query,
-        })
+        self.params.update({"json": 1, "c": 0, "query": query})
 
-        response = send_request('GET',
-                                self._suggestion_url,
-                                params=self.params)
-        suggestions = [q['s'] for q in response.json()]
+        response = send_request("GET", self._suggestion_url, params=self.params)
+        suggestions = [q["s"] for q in response.json()]
         return suggestions
 
     def search(self, query, page=None, detailed=False):
@@ -206,25 +220,22 @@ class PlayScraper(object):
         """
         page = 0 if page is None else int(page)
         if page > len(self._pagtok) - 1:
-            raise ValueError('Parameter \'page\' ({page}) must be between 0 and 12.'.format(
-                page=page))
+            raise ValueError(
+                "Parameter 'page' ({page}) must be between 0 and 12.".format(page=page)
+            )
 
         pagtok = self._pagtok[page]
         data = generate_post_data(0, 0, pagtok)
 
-        self.params.update({
-            'q': quote_plus(query),
-            'c': 'apps',
-        })
+        self.params.update({"q": quote_plus(query), "c": "apps"})
 
-        response = send_request('POST', self._search_url, data, self.params)
-        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
+        response = send_request("POST", self._search_url, data, self.params)
+        soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [parse_cluster_card_info(app)
-                    for app in soup.select('div.Vpfmgd')]
+            apps = [parse_cluster_card_info(app) for app in soup.select("div.Vpfmgd")]
 
         return apps
 
@@ -236,18 +247,14 @@ class PlayScraper(object):
         :param detailed: if True, sends request per app for its full detail
         :return: a list of similar apps
         """
-        url = build_url('similar', app_id)
-        response = send_request('GET',
-                                url,
-                                params=self.params,
-                                allow_redirects=True)
-        soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf8')
+        url = build_url("similar", app_id)
+        response = send_request("GET", url, params=self.params, allow_redirects=True)
+        soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [parse_cluster_card_info(app)
-                    for app in soup.select('div.Vpfmgd')]
+            apps = [parse_cluster_card_info(app) for app in soup.select("div.Vpfmgd")]
 
         return apps
 
@@ -257,31 +264,32 @@ class PlayScraper(object):
         """
         categories = {}
 
-        response = send_request('GET', s.BASE_URL, params=self.params)
-        soup = BeautifulSoup(response.content,
-                             'lxml',
-                             from_encoding='utf8')
+        response = send_request("GET", s.BASE_URL, params=self.params)
+        soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
-        category_links = soup.select('div[id*="action-dropdown-children"] a[href*="category"]')
-        age_query = '?age='
+        category_links = soup.select(
+            'div[id*="action-dropdown-children"] a[href*="category"]'
+        )
+        age_query = "?age="
 
         for cat in category_links:
-            url = urljoin(s.BASE_URL, cat.attrs['href'])
-            category_id = url.split('/')[-1]
+            url = urljoin(s.BASE_URL, cat.attrs["href"])
+            category_id = url.split("/")[-1]
             name = cat.string.strip()
 
             if age_query in category_id:
-                category_id = 'FAMILY'
-                url = url.split('?')[0]
-                name = 'Family'
+                category_id = "FAMILY"
+                url = url.split("?")[0]
+                name = "Family"
 
             if category_id not in categories:
-                if ignore_promotions and '/store/apps/category/' not in url:
+                if ignore_promotions and "/store/apps/category/" not in url:
                     continue
 
                 categories[category_id] = {
-                    'name': name,
-                    'url': url,
-                    'category_id': category_id}
+                    "name": name,
+                    "url": url,
+                    "category_id": category_id,
+                }
 
         return categories

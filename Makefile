@@ -8,6 +8,9 @@ clean:
 lint:
 	flake8 play_scraper tests
 
+fmt:
+	black play_scraper tests
+
 publish: build
 	pip install 'twine>=1.11.0'
 	twine upload dist/*

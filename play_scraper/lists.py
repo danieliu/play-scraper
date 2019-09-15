@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 COLLECTIONS = {
-    'NEW_FREE': 'topselling_new_free',
-    'NEW_PAID': 'topselling_new_paid',
-    'TOP_FREE': 'topselling_free',
-    'TOP_PAID': 'topselling_paid',
-    'TOP_GROSSING': 'topgrossing',
-    'TRENDING': 'movers_shakers',
+    "NEW_FREE": "topselling_new_free",
+    "NEW_PAID": "topselling_new_paid",
+    "TOP_FREE": "topselling_free",
+    "TOP_PAID": "topselling_paid",
+    "TOP_GROSSING": "topgrossing",
+    "TRENDING": "movers_shakers",
 }
 
 CATEGORIES = {
@@ -74,5 +74,5 @@ CATEGORIES = {
 AGE_RANGE = {
     "FIVE_UNDER": "AGE_RANGE1",
     "SIX_EIGHT": "AGE_RANGE2",
-    "NINE_UP": "AGE_RANGE3"
+    "NINE_UP": "AGE_RANGE3",
 }

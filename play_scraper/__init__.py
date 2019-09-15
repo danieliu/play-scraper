@@ -6,7 +6,7 @@ Google Play Store Scraper
 A web scraper for the Google Play Android app store.
 """
 
-__version__ = '0.6.0'
+__version__ = "0.6.0"
 
 import logging
 
@@ -25,6 +25,7 @@ from play_scraper.api import (  # noqa: F401
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:
+
     class NullHandler(logging.Handler):
         def emit(self, record):
             pass

@@ -11,7 +11,7 @@ play_scraper.api
 from play_scraper import scraper
 
 
-def details(app_id, hl='en', gl='us'):
+def details(app_id, hl="en", gl="us"):
     """Sends a GET request to the app's info page, parses the app's details, and
     returns them as a dict.
 
@@ -22,7 +22,7 @@ def details(app_id, hl='en', gl='us'):
     return s.details(app_id)
 
 
-def collection(collection, category=None, hl='en', gl='us', **kwargs):
+def collection(collection, category=None, hl="en", gl="us", **kwargs):
     """Sends a POST request to the collection url, gets each app's details, and
     returns them in a list.
 
@@ -41,7 +41,7 @@ def collection(collection, category=None, hl='en', gl='us', **kwargs):
     return s.collection(collection, category, **kwargs)
 
 
-def developer(developer, hl='en', gl='us', **kwargs):
+def developer(developer, hl="en", gl="us", **kwargs):
     """Sends a POST request to the developer's page, extracts their apps' basic
     info, and returns them in a list.
 
@@ -55,7 +55,7 @@ def developer(developer, hl='en', gl='us', **kwargs):
     return s.developer(developer, **kwargs)
 
 
-def suggestions(query, hl='en', gl='us'):
+def suggestions(query, hl="en", gl="us"):
     """Sends a GET request to the Play Store's suggestion API and returns up to
     five autocompleted suggested query strings in a list.
 
@@ -66,7 +66,7 @@ def suggestions(query, hl='en', gl='us'):
     return s.suggestions(query)
 
 
-def search(query, page=None, detailed=False, hl='en', gl='us'):
+def search(query, page=None, detailed=False, hl="en", gl="us"):
     """Sends a POST request and retrieves a list of applications matching
     the query term(s).
 
@@ -79,7 +79,7 @@ def search(query, page=None, detailed=False, hl='en', gl='us'):
     return s.search(query, page, detailed)
 
 
-def similar(app_id, detailed=False, hl='en', gl='us'):
+def similar(app_id, detailed=False, hl="en", gl="us"):
     """Sends a GET request, follows the redirect, and retrieves a list of
     applications similar to the specified app.
 
@@ -91,7 +91,7 @@ def similar(app_id, detailed=False, hl='en', gl='us'):
     return s.similar(app_id, detailed=detailed)
 
 
-def categories(hl='en', gl='us', ignore_promotions=True):
+def categories(hl="en", gl="us", ignore_promotions=True):
     """Sends a GET request to the front page (app store base url), parses and
     returns a list of all available categories.
 
