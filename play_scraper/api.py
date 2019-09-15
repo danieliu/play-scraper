@@ -79,7 +79,7 @@ def search(query, page=None, detailed=False, hl='en', gl='us'):
     return s.search(query, page, detailed)
 
 
-def similar(app_id, detailed=False, hl='en', gl='us'):
+def similar(app_id, detailed=True, hl='en', gl='us'):
     """Sends a GET request, follows the redirect, and retrieves a list of
     applications similar to the specified app.
 
@@ -88,7 +88,7 @@ def similar(app_id, detailed=False, hl='en', gl='us'):
     :return: a list of similar apps
     """
     s = scraper.PlayScraper(hl, gl)
-    return s.similar(app_id)
+    return s.similar(app_id, detailed)
 
 
 def categories(hl='en', gl='us', ignore_promotions=True):

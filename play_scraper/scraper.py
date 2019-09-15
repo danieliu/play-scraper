@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
 try:
     from urllib import quote_plus
     from urlparse import urljoin
@@ -54,15 +55,16 @@ class PlayScraper(object):
         :param list_response: the Response object from a list request
         :return: a list of app dictionaries
         """
-        list_strainer = SoupStrainer('span',
-                                     {'class': 'preview-overlay-container'})
+        list_strainer = SoupStrainer('a')
         soup = BeautifulSoup(list_response.content,
                              'lxml',
-                             from_encoding='utf8',
-                             parse_only=list_strainer)
+                             parse_only=list_strainer,
+                             from_encoding='utf8')
 
-        app_ids = [x.attrs['data-docid']
-                   for x in soup.select('span.preview-overlay-container')]
+        # getting app_ids from href attributes of app links on the similar apps page
+        app_tags = soup.find_all(href=re.compile("\/store\/apps\/details\?id="))
+        app_ids = list(set([link.attrs["href"][23:] for link in app_tags])) # converting the resulting list to set to get only unique values and then vice versa as multi_futures_app_request requires a list
+
         return multi_futures_app_request(app_ids, params=self.params)
 
     def details(self, app_id):
