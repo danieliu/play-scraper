@@ -4,9 +4,9 @@ import logging
 import re
 try:
     from urllib import quote_plus
-    from urlparse import urljoin
+    from urlparse import urljoin, urlparse, parse_qs
 except ImportError:
-    from urllib.parse import quote_plus, urljoin
+    from urllib.parse import quote_plus, urljoin, urlparse, parse_qs
 
 import requests
 from bs4 import BeautifulSoup
@@ -343,6 +343,91 @@ def parse_app_details(soup):
     data.update(additional_info_data)
 
     return data
+
+
+def extract_id_query(url):
+    """
+    Parses a url and extracts the id query parameter value.
+
+    :param url: either the relative or absolute url string containing an app id
+    :return: the app id
+    """
+    if not url:
+        return None
+
+    absolute_url = url
+    if not absolute_url.startswith('https'):
+        absolute_url = urljoin(s.BASE_URL, url)
+
+    query_string = urlparse(absolute_url).query
+    app_id = parse_qs(query_string).get('id')[0]
+    return app_id
+
+
+def parse_cluster_card_info(soup):
+    """
+    App lists from GET requests follow a redirect to the /cluster page, which
+    contains different HTML and selectors.
+
+    :param soup: a BeautifulSoup object of an app's card
+    :return: a dictionary of available basic app info
+    """
+    icon = soup.select_one('img')
+
+    details_soup = soup.select_one('div.RZEgze')
+    relative_url = details_soup.select_one('div.p63iDd > a')
+    url = relative_url.attrs.get('href') if relative_url else None
+
+    app_id = None
+    if url:
+        app_id = extract_id_query(url)
+
+    title = details_soup.select_one('div.WsMG1c.nnK0zc')
+
+    developer_soup = details_soup.select_one('a.mnKHRc')
+    developer = None
+    developer_id = None
+    if developer_soup:
+        developer = developer_soup.select_one('div.KoLSrc')
+        developer_url = developer_soup.attrs.get('href') if developer else None
+        developer_id = extract_id_query(developer_url)
+
+    description = details_soup.select_one('div.b8cIId.f5NCO')
+
+    score_soup = details_soup.select_one('div.pf5lIe div')
+    score = None
+    if score_soup:
+        matches = re.search(r'([0-9]\.[0-9]) star', score_soup.text)
+        score = matches.groups()[0] if matches else None
+
+    price = None
+    price_button = details_soup.select_one('button span.VfPpfd')
+    if price_button:
+        price = price_button.text
+
+    full_price = None
+    full_price_button = details_soup.select_one('button span.SUZt4c')
+    if full_price_button:
+        full_price = full_price_button.text
+
+    free = (price is None)
+    if free is True:
+        price = '0'
+        full_price = '0'
+
+    return {
+        'app_id': app_id,
+        'url': url,
+        'icon': icon.attrs.get('data-src') if icon else None,
+        'title': title.text if title else None,
+        'developer': developer.text if developer else None,
+        'developer_id': developer_id,
+        'description': description.text if description else None,
+        'score': score,
+        'full_price': full_price,
+        'price': price,
+        'free': free
+    }
 
 
 def parse_card_info(soup):

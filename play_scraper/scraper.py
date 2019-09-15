@@ -12,7 +12,7 @@ except NameError:
     basestring = str
 
 import requests
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 
 from play_scraper import settings as s
 from play_scraper.constants import HL_LANGUAGE_CODES, GL_COUNTRY_CODES
@@ -20,10 +20,12 @@ from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
     build_collection_url,
     build_url,
+    extract_id_query,
     generate_post_data,
     multi_futures_app_request,
     parse_app_details,
     parse_card_info,
+    parse_cluster_card_info,
     send_request,
 )
 
@@ -54,15 +56,18 @@ class PlayScraper(object):
         :param list_response: the Response object from a list request
         :return: a list of app dictionaries
         """
-        list_strainer = SoupStrainer('span',
-                                     {'class': 'preview-overlay-container'})
+        # TODO: refactor to better handle multiple possible list HTMLs and selectors
+        # to extract out app ids
         soup = BeautifulSoup(list_response.content,
                              'lxml',
-                             from_encoding='utf8',
-                             parse_only=list_strainer)
+                             from_encoding='utf8')
 
         app_ids = [x.attrs['data-docid']
                    for x in soup.select('span.preview-overlay-container')]
+        if not app_ids:
+            app_ids = [extract_id_query(x.attrs.get('href'))
+                       for x in soup.select('div.p63iDd > a')]
+
         return multi_futures_app_request(app_ids, params=self.params)
 
     def details(self, app_id):
@@ -241,8 +246,8 @@ class PlayScraper(object):
         if detailed:
             apps = self._parse_multiple_apps(response)
         else:
-            apps = [parse_card_info(app)
-                    for app in soup.select('div[data-uitype="500"]')]
+            apps = [parse_cluster_card_info(app)
+                    for app in soup.select('div.Vpfmgd')]
 
         return apps
 

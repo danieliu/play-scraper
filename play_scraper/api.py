@@ -88,7 +88,7 @@ def similar(app_id, detailed=False, hl='en', gl='us'):
     :return: a list of similar apps
     """
     s = scraper.PlayScraper(hl, gl)
-    return s.similar(app_id)
+    return s.similar(app_id, detailed=detailed)
 
 
 def categories(hl='en', gl='us', ignore_promotions=True):
