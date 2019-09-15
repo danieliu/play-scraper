@@ -1,3 +1,5 @@
+# ~*~ coding: utf-8 ~*~
+
 HL_LANGUAGE_CODES = {
     'af': 'Afrikaans',
     'sq': 'Albanian',
@@ -126,7 +128,7 @@ GL_COUNTRY_CODES = {
     'cf': 'Central African Republic',
     'cg': 'Congo [Republic]',
     'ch': 'Switzerland',
-    'ci': 'Côte d'Ivoire',
+    'ci': 'Côte d\'Ivoire',
     'ck': 'Cook Islands',
     'cl': 'Chile',
     'cm': 'Cameroon',
