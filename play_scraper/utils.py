@@ -251,7 +251,7 @@ def parse_app_details(soup):
     # Removing the end `=w720-h310-rw` doesn't seem to give original res?
     # Check 'src' and 'data-src' since it can be one or the other
     screenshots = [parse_screenshot_src(img)
-                   for img in soup.select('button.NIc6yf img.lxGQyd')]
+                   for img in soup.select('button.Q4vdJd img.DYfLw')]
 
     try:
         video = (soup.select_one('button[data-trailer-url^="https"]')
