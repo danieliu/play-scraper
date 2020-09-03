@@ -94,6 +94,7 @@ def send_request(
     timeout=30,
     verify=True,
     allow_redirects=False,
+    **kwargs,
 ):
     """Sends a request to the url and returns the response.
 
@@ -121,6 +122,7 @@ def send_request(
             timeout=timeout,
             verify=verify,
             allow_redirects=allow_redirects,
+            **kwargs,
         )
         if not response.status_code == requests.codes.ok:
             response.raise_for_status()

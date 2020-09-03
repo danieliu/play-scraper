@@ -75,7 +75,7 @@ class PlayScraper(object):
 
         return multi_futures_app_request(app_ids, params=self.params)
 
-    def details(self, app_id):
+    def details(self, app_id, **kwargs):
         """Sends a GET request and parses an application's details.
 
         :param app_id: the app to retrieve details, e.g. 'com.nintendo.zaaa'
@@ -83,8 +83,10 @@ class PlayScraper(object):
         """
         url = build_url("details", app_id)
 
+        kwargs.update({"params": self.params})
+
         try:
-            response = send_request("GET", url, params=self.params)
+            response = send_request("GET", url, **kwargs)
             soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
         except requests.exceptions.HTTPError as e:
             raise ValueError(
@@ -103,6 +105,7 @@ class PlayScraper(object):
         page=None,
         age=None,
         detailed=False,
+        **kwargs
     ):
         """Sends a POST request and fetches a list of applications belonging to
         the collection and an optional category.
@@ -142,7 +145,8 @@ class PlayScraper(object):
 
         url = build_collection_url(category, collection_name)
         data = generate_post_data(results, page)
-        response = send_request("POST", url, data, self.params)
+        kwargs.update({"params": self.params})
+        response = send_request("POST", url, data, **kwargs)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -155,7 +159,7 @@ class PlayScraper(object):
 
         return apps
 
-    def developer(self, developer, results=None, page=None, detailed=False):
+    def developer(self, developer, results=None, page=None, detailed=False, **kwargs):
         """Sends a POST request and retrieves a list of the developer's
         published applications on the Play Store.
 
@@ -181,7 +185,8 @@ class PlayScraper(object):
 
         url = build_url("developer", developer)
         data = generate_post_data(results, 0, pagtok)
-        response = send_request("POST", url, data, self.params)
+        kwargs.update({"params": self.params})
+        response = send_request("POST", url, data, **kwargs)
 
         if detailed:
             apps = self._parse_multiple_apps(response)
@@ -193,7 +198,7 @@ class PlayScraper(object):
 
         return apps
 
-    def suggestions(self, query):
+    def suggestions(self, query, **kwargs):
         """Sends a GET request and retrieves a list of autocomplete suggestions
         matching the query term(s).
 
@@ -205,11 +210,12 @@ class PlayScraper(object):
 
         self.params.update({"json": 1, "c": 0, "query": query})
 
-        response = send_request("GET", self._suggestion_url, params=self.params)
+        kwargs.update({"params": self.params})
+        response = send_request("GET", self._suggestion_url, **kwargs)
         suggestions = [q["s"] for q in response.json()]
         return suggestions
 
-    def search(self, query, page=None, detailed=False):
+    def search(self, query, page=None, detailed=False, **kwargs):
         """Sends a POST request and retrieves a list of applications matching
         the query term(s).
 
@@ -228,8 +234,9 @@ class PlayScraper(object):
         data = generate_post_data(0, 0, pagtok)
 
         self.params.update({"q": quote_plus(query), "c": "apps"})
+        kwargs.update({"params": self.params, "data": data})
 
-        response = send_request("POST", self._search_url, data, self.params)
+        response = send_request("POST", self._search_url, **kwargs)
         soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
         if detailed:
@@ -248,7 +255,9 @@ class PlayScraper(object):
         :return: a list of similar apps
         """
         url = build_url("similar", app_id)
-        response = send_request("GET", url, params=self.params, allow_redirects=True)
+        kwargs.update({"params": self.params, "allow_redirects": True})
+
+        response = send_request("GET", url, **kwargs)
         soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
         if detailed:
@@ -258,13 +267,14 @@ class PlayScraper(object):
 
         return apps
 
-    def categories(self, ignore_promotions=True):
+    def categories(self, ignore_promotions=True, **kwargs):
         """Sends a GET request to the front page (app store base url), parses
         and returns a list of all available categories.
         """
         categories = {}
 
-        response = send_request("GET", s.BASE_URL, params=self.params)
+        kwargs.update({"params": self.params})
+        response = send_request("GET", s.BASE_URL, **kwargs)
         soup = BeautifulSoup(response.content, "lxml", from_encoding="utf8")
 
         category_links = soup.select(
