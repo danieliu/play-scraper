@@ -9,7 +9,7 @@ enum34==1.1.6
 futures==3.3.0;python_version<"2.7"
 idna==2.8
 ipaddress==1.0.22
-lxml==4.4.1
+lxml==4.6.2
 pycparser==2.19
 pyOpenSSL==19.0.0
 requests==2.22.0
